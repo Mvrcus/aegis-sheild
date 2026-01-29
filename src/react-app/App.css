@@ -278,12 +278,15 @@ body {
 }
 
 .dashboard-header {
-  background: white;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -317,23 +320,28 @@ body {
 
 .logout-btn {
   padding: 0.5rem 1rem;
-  background: var(--gray-100);
+  background: rgba(255, 255, 255, 0.8);
   color: var(--gray-700);
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 500;
   transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .logout-btn:hover {
-  background: var(--gray-200);
-  border-color: var(--gray-400);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ============ CLIENT DASHBOARD ============ */
 .dashboard-content {
   width: 100%;
+  max-width: 100%;
   padding: 2rem;
 }
 
@@ -723,7 +731,9 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -732,12 +742,17 @@ body {
 }
 
 .modal {
-  background: white;
-  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 1.5rem;
   max-width: 480px;
+  max-height: 90vh;
   width: 100%;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
 }
 
 .modal h3 {
@@ -826,7 +841,11 @@ body {
 }
 
 .admin-header {
-  background: var(--gray-800);
+  background: rgba(31, 41, 55, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   width: 100%;
 }
 
@@ -843,13 +862,14 @@ body {
 }
 
 .admin-header .logout-btn {
-  background: var(--gray-700);
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border-color: var(--gray-600);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .admin-header .logout-btn:hover {
-  background: var(--gray-600);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .admin-layout {
@@ -1257,32 +1277,37 @@ body {
 }
 
 .nav-tab {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  color: var(--gray-400);
-  border: none;
-  border-radius: var(--border-radius);
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--gray-300);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .nav-tab:hover {
-  background: var(--gray-700);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
   color: white;
 }
 
 .nav-tab.active {
-  background: var(--primary-color);
+  background: rgba(59, 130, 246, 0.9);
+  border-color: transparent;
   color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* ============ PHASE TEMPLATE MANAGER ============ */
 .admin-templates-view {
   padding: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  width: 100%;
+  flex: 1;
 }
 
 .phase-template-manager {
@@ -1616,6 +1641,23 @@ body {
 
 .new-client-modal {
   max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.new-client-modal h3 {
+  flex-shrink: 0;
+}
+
+.new-client-modal .modal-actions {
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding-top: 1rem;
+  margin-top: auto;
 }
 
 .new-client-modal .form-group input[type="email"] {
@@ -1945,10 +1987,10 @@ body {
     font-size: 1.15rem;
   }
 
-  /* Dashboard - Wider content area */
+  /* Dashboard - Full width content area */
   .dashboard-content {
-    max-width: 1000px;
-    padding: 2.5rem;
+    max-width: 100%;
+    padding: 2.5rem 3rem;
   }
 
   .dashboard-header {
@@ -2030,11 +2072,11 @@ body {
   }
 
   .admin-main {
-    padding: 2.5rem;
+    padding: 2.5rem 3rem;
   }
 
   .client-detail {
-    max-width: 1000px;
+    max-width: 100%;
   }
 
   .admin-section {
@@ -2071,7 +2113,7 @@ body {
 
   /* Phase Templates - Desktop enhancements */
   .admin-templates-view {
-    max-width: 1100px;
+    padding: 2.5rem 3rem;
   }
 
   .templates-list {
@@ -2087,10 +2129,10 @@ body {
 
 /* ============ LARGE DESKTOP (1200px+) ============ */
 @media (min-width: 1200px) {
-  /* Dashboard - Extra wide content */
+  /* Dashboard - Full width content */
   .dashboard-content {
-    max-width: 1100px;
-    padding: 3rem;
+    max-width: 100%;
+    padding: 3rem 4rem;
   }
 
   .dashboard-header {
@@ -2197,11 +2239,11 @@ body {
   }
 
   .admin-main {
-    padding: 3rem;
+    padding: 3rem 4rem;
   }
 
   .client-detail {
-    max-width: 1100px;
+    max-width: 100%;
   }
 
   .detail-header h1 {
@@ -2262,16 +2304,16 @@ body {
 
   /* Phase Templates - Large desktop */
   .admin-templates-view {
-    max-width: 1200px;
+    padding: 3rem 4rem;
   }
 }
 
 /* ============ EXTRA LARGE DESKTOP (1440px+) ============ */
 @media (min-width: 1440px) {
-  /* Dashboard - Maximum width with centered content */
+  /* Dashboard - Full width content */
   .dashboard-content {
-    max-width: 1200px;
-    padding: 3.5rem 4rem;
+    max-width: 100%;
+    padding: 3.5rem 5rem;
   }
 
   .dashboard-header {
@@ -2354,11 +2396,11 @@ body {
   }
 
   .admin-main {
-    padding: 3.5rem 4rem;
+    padding: 3.5rem 5rem;
   }
 
   .client-detail {
-    max-width: 1200px;
+    max-width: 100%;
   }
 
   .detail-header {
@@ -2437,8 +2479,7 @@ body {
 
   /* Phase Templates - Extra large desktop */
   .admin-templates-view {
-    max-width: 1400px;
-    padding: 3rem;
+    padding: 3.5rem 5rem;
   }
 
   .templates-list {
@@ -2453,10 +2494,10 @@ body {
 
 /* ============ ULTRA WIDE DESKTOP (1920px+) ============ */
 @media (min-width: 1920px) {
-  /* Dashboard - Comfortable reading width */
+  /* Dashboard - Full width content */
   .dashboard-content {
-    max-width: 1400px;
-    padding: 4rem 5rem;
+    max-width: 100%;
+    padding: 4rem 6rem;
   }
 
   .dashboard-header {
@@ -2503,11 +2544,11 @@ body {
   }
 
   .admin-main {
-    padding: 4rem 5rem;
+    padding: 4rem 6rem;
   }
 
   .client-detail {
-    max-width: 1400px;
+    max-width: 100%;
   }
 
   .detail-header h1 {
@@ -2524,8 +2565,7 @@ body {
 
   /* Phase Templates - Ultra wide */
   .admin-templates-view {
-    max-width: 1600px;
-    padding: 4rem;
+    padding: 4rem 6rem;
   }
 
   .template-header {
