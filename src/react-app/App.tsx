@@ -983,12 +983,14 @@ function AdminPanel({
   clients,
   onLogout,
   onUpdateClient,
+  onAddClient,
   phaseTemplates,
   onUpdateTemplates,
 }: {
   clients: Client[];
   onLogout: () => void;
   onUpdateClient: (clientId: string, updates: Partial<Client>) => void;
+  onAddClient: (client: Client) => void;
   phaseTemplates: PhaseTemplate[];
   onUpdateTemplates: (templates: PhaseTemplate[]) => void;
 }) {
@@ -996,6 +998,84 @@ function AdminPanel({
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [adminView, setAdminView] = useState<"clients" | "templates">("clients");
+
+  // New client modal state
+  const [newClientModalOpen, setNewClientModalOpen] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [newClientEmail, setNewClientEmail] = useState("");
+  const [newClientProduct, setNewClientProduct] = useState<ProductType>("ZEUS");
+  const [newClientModules, setNewClientModules] = useState<string[]>([]);
+
+  const generateId = () => `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+  // Create phases from templates based on product type and selected modules
+  const createPhasesFromTemplates = (product: ProductType, modules: string[]): Phase[] => {
+    // Filter templates based on product type and selected modules
+    const relevantTemplates = product === "ZEUS"
+      ? phaseTemplates
+      : phaseTemplates.filter(template =>
+          template.modules.length === 0 || // Universal phases
+          template.modules.some(mod => modules.includes(mod))
+        );
+
+    return relevantTemplates.map(template => ({
+      id: template.id,
+      name: template.name,
+      modules: template.modules,
+      steps: template.steps.map(step => ({
+        id: step.id,
+        name: step.name,
+        completed: false,
+      })),
+    }));
+  };
+
+  const handleAddNewClient = () => {
+    if (!newClientName.trim() || !newClientEmail.trim()) return;
+    if (newClientProduct === "HESTIA" && newClientModules.length === 0) return;
+
+    const phases = createPhasesFromTemplates(newClientProduct, newClientModules);
+
+    const newClient: Client = {
+      id: generateId(),
+      name: newClientName.trim(),
+      email: newClientEmail.trim(),
+      product: newClientProduct,
+      hestiaModules: newClientProduct === "HESTIA" ? newClientModules : [],
+      progress: 0,
+      phases,
+      clientFiles: [],
+      adminFiles: [],
+      meetingLinks: [],
+      finalRecordStatus: "not_requested",
+    };
+
+    onAddClient(newClient);
+    setSelectedClient(newClient);
+
+    // Reset form
+    setNewClientName("");
+    setNewClientEmail("");
+    setNewClientProduct("ZEUS");
+    setNewClientModules([]);
+    setNewClientModalOpen(false);
+  };
+
+  const toggleNewClientModule = (moduleId: string) => {
+    setNewClientModules(prev =>
+      prev.includes(moduleId)
+        ? prev.filter(m => m !== moduleId)
+        : [...prev, moduleId]
+    );
+  };
+
+  const resetNewClientModal = () => {
+    setNewClientName("");
+    setNewClientEmail("");
+    setNewClientProduct("ZEUS");
+    setNewClientModules([]);
+    setNewClientModalOpen(false);
+  };
 
   const filteredClients = clients.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1086,7 +1166,12 @@ function AdminPanel({
         {/* Client List Sidebar */}
         <aside className="client-sidebar">
           <div className="sidebar-header">
-            <h2>Clients</h2>
+            <div className="sidebar-title-row">
+              <h2>Clients</h2>
+              <button className="add-client-btn" onClick={() => setNewClientModalOpen(true)}>
+                + New Client
+              </button>
+            </div>
             <input
               type="text"
               placeholder="Search clients..."
@@ -1342,6 +1427,108 @@ function AdminPanel({
           </div>
         </div>
       )}
+
+      {/* New Client Modal */}
+      {newClientModalOpen && (
+        <div className="modal-overlay" onClick={resetNewClientModal}>
+          <div className="modal new-client-modal" onClick={e => e.stopPropagation()}>
+            <h3>Create New Client</h3>
+
+            <div className="form-group">
+              <label>Client Name</label>
+              <input
+                type="text"
+                placeholder="e.g., John Smith"
+                value={newClientName}
+                onChange={e => setNewClientName(e.target.value)}
+                autoFocus
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                placeholder="e.g., john.smith@email.com"
+                value={newClientEmail}
+                onChange={e => setNewClientEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Product Type</label>
+              <div className="product-type-selector">
+                <label className={`product-option ${newClientProduct === "ZEUS" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="productType"
+                    value="ZEUS"
+                    checked={newClientProduct === "ZEUS"}
+                    onChange={() => {
+                      setNewClientProduct("ZEUS");
+                      setNewClientModules([]);
+                    }}
+                  />
+                  <div className="product-option-content">
+                    <strong>ZEUS</strong>
+                    <span>Full Bundle - All modules included</span>
+                  </div>
+                </label>
+                <label className={`product-option ${newClientProduct === "HESTIA" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="productType"
+                    value="HESTIA"
+                    checked={newClientProduct === "HESTIA"}
+                    onChange={() => setNewClientProduct("HESTIA")}
+                  />
+                  <div className="product-option-content">
+                    <strong>HESTIA</strong>
+                    <span>A La Carte - Select specific modules</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {newClientProduct === "HESTIA" && (
+              <div className="form-group">
+                <label>Select Modules</label>
+                <p className="form-hint">Choose which modules this client will have access to</p>
+                <div className="module-checkboxes">
+                  {AVAILABLE_MODULES.map(mod => (
+                    <label key={mod.id} className="module-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={newClientModules.includes(mod.id)}
+                        onChange={() => toggleNewClientModule(mod.id)}
+                      />
+                      <span>{mod.name}</span>
+                    </label>
+                  ))}
+                </div>
+                {newClientModules.length === 0 && (
+                  <p className="form-error">Please select at least one module for HESTIA clients</p>
+                )}
+              </div>
+            )}
+
+            <div className="modal-actions">
+              <button className="cancel-btn" onClick={resetNewClientModal}>Cancel</button>
+              <button
+                className="submit-btn"
+                onClick={handleAddNewClient}
+                disabled={
+                  !newClientName.trim() ||
+                  !newClientEmail.trim() ||
+                  (newClientProduct === "HESTIA" && newClientModules.length === 0)
+                }
+              >
+                Create Client
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1369,6 +1556,10 @@ function App() {
     setClients(prev => prev.map(c =>
       c.id === clientId ? { ...c, ...updates } : c
     ));
+  };
+
+  const handleAddClient = (client: Client) => {
+    setClients(prev => [...prev, client]);
   };
 
   const handleUpdateTemplates = (templates: PhaseTemplate[]) => {
@@ -1404,6 +1595,7 @@ function App() {
         clients={clients}
         onLogout={handleLogout}
         onUpdateClient={handleUpdateClient}
+        onAddClient={handleAddClient}
         phaseTemplates={phaseTemplates}
         onUpdateTemplates={handleUpdateTemplates}
       />

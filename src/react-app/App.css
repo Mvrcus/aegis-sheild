@@ -1585,6 +1585,114 @@ body {
   cursor: not-allowed;
 }
 
+/* ============ NEW CLIENT MODAL ============ */
+.sidebar-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.sidebar-title-row h2 {
+  margin: 0;
+}
+
+.add-client-btn {
+  padding: 0.4rem 0.75rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-client-btn:hover {
+  background: var(--primary-dark);
+}
+
+.new-client-modal {
+  max-width: 520px;
+}
+
+.new-client-modal .form-group input[type="email"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+}
+
+.new-client-modal .form-group input[type="email"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.product-type-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.product-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-option:hover {
+  border-color: var(--gray-300);
+  background: var(--gray-50);
+}
+
+.product-option.selected {
+  border-color: var(--primary-color);
+  background: #eff6ff;
+}
+
+.product-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.product-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-option-content strong {
+  font-size: 1rem;
+  color: var(--gray-800);
+}
+
+.product-option-content span {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+}
+
+.product-option.selected .product-option-content strong {
+  color: var(--primary-color);
+}
+
+.form-error {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: var(--danger-color);
+}
+
 /* ============ RESPONSIVE - Mobile First ============ */
 @media (max-width: 768px) {
   .login-container {
