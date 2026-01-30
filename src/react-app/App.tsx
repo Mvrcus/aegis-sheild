@@ -451,184 +451,177 @@ function ClientDashboard({
       <main className="dashboard-content">
         {/* Welcome Section */}
         <section className="welcome-section">
-          <h1>Welcome, {client.name.split(" ")[0]}!</h1>
-          <div className="product-badge">
-            <span className={`badge ${client.product.toLowerCase()}`}>
-              {client.product === "ZEUS" ? "ZEUS Full Bundle" : "HESTIA A La Carte"}
-            </span>
-            {client.product === "HESTIA" && (
-              <span className="modules-list">
-                Modules: {client.hestiaModules.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(", ")}
+          <div className="welcome-content">
+            <h1>Welcome, {client.name.split(" ")[0]}!</h1>
+            <div className="product-badge">
+              <span className={`badge ${client.product.toLowerCase()}`}>
+                {client.product === "ZEUS" ? "ZEUS Full Bundle" : "HESTIA A La Carte"}
               </span>
-            )}
-          </div>
-        </section>
-
-        {/* Progress Bar */}
-        <section className="progress-section card">
-          <h2>Project Progress</h2>
-          <div className="progress-container">
-            <div className="progress-bar">
-              <div
-                className="progress-fill"
-                style={{ width: `${client.progress}%` }}
-              />
+              {client.product === "HESTIA" && (
+                <span className="modules-list">
+                  Modules: {client.hestiaModules.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(", ")}
+                </span>
+              )}
             </div>
-            <span className="progress-text">{client.progress}% Complete</span>
           </div>
-        </section>
-
-        {/* Phase Checklist */}
-        <section className="phases-section card">
-          <h2>Project Phases</h2>
-          <div className="phases-list">
-            {visiblePhases.map(phase => {
-              const completedSteps = phase.steps.filter(s => s.completed).length;
-              const totalSteps = phase.steps.length;
-              const phaseProgress = Math.round((completedSteps / totalSteps) * 100);
-
-              return (
-                <div key={phase.id} className="phase-item">
-                  <div className="phase-header">
-                    <h3>{phase.name}</h3>
-                    <span className="phase-progress">{completedSteps}/{totalSteps} steps</span>
-                  </div>
-                  <div className="phase-progress-bar">
-                    <div className="phase-fill" style={{ width: `${phaseProgress}%` }} />
-                  </div>
-                  <ul className="steps-list">
-                    {phase.steps.map(step => (
-                      <li key={step.id} className={step.completed ? "completed" : ""}>
-                        <span className="step-check">
-                          {step.completed ? "✓" : "○"}
-                        </span>
-                        {step.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* File Upload Section */}
-        <section className="upload-section card">
-          <div className="section-header">
-            <h2>Your Uploads</h2>
-            <button className="upload-btn" onClick={() => setUploadModalOpen(true)}>
-              + Upload File
-            </button>
-          </div>
-          {client.clientFiles.length > 0 ? (
-            <table className="files-table">
-              <thead>
-                <tr>
-                  <th>File</th>
-                  <th>Type</th>
-                  <th>Uploaded</th>
-                  <th>Size</th>
-                </tr>
-              </thead>
-              <tbody>
-                {client.clientFiles.map(file => (
-                  <tr key={file.id}>
-                    <td>
-                      <span className="file-icon">{getFileIcon(file.type)}</span>
-                      {file.name}
-                    </td>
-                    <td className="capitalize">{file.type}</td>
-                    <td>{file.uploadedAt}</td>
-                    <td>{file.size}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="empty-state">No files uploaded yet</p>
-          )}
-        </section>
-
-        {/* Deliverables Section */}
-        <section className="deliverables-section card">
-          <h2>Deliverables from Aegis Shield</h2>
-          {client.adminFiles.length > 0 ? (
-            <table className="files-table">
-              <thead>
-                <tr>
-                  <th>Document</th>
-                  <th>Date</th>
-                  <th>Size</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {client.adminFiles.map(file => (
-                  <tr key={file.id}>
-                    <td>
-                      <span className="file-icon">{getFileIcon(file.type)}</span>
-                      {file.name}
-                    </td>
-                    <td>{file.uploadedAt}</td>
-                    <td>{file.size}</td>
-                    <td>
-                      <button className="download-btn">Download</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="empty-state">No deliverables available yet</p>
-          )}
-        </section>
-
-        {/* Meeting Links */}
-        <section className="meetings-section card">
-          <h2>Scheduled Meetings</h2>
-          {client.meetingLinks.length > 0 ? (
-            <div className="meetings-list">
-              {client.meetingLinks.map(meeting => (
-                <div key={meeting.id} className="meeting-item">
-                  <div className="meeting-info">
-                    <strong>{meeting.title}</strong>
-                    <span className="meeting-date">{meeting.date}</span>
-                  </div>
-                  <a href={meeting.url} target="_blank" rel="noopener noreferrer" className="join-btn">
-                    Join Meeting
-                  </a>
-                </div>
-              ))}
+          {/* Progress - inline with welcome on desktop */}
+          <div className="welcome-progress">
+            <div className="progress-ring-container">
+              <svg className="progress-ring" viewBox="0 0 100 100">
+                <circle className="progress-ring-bg" cx="50" cy="50" r="42" />
+                <circle 
+                  className="progress-ring-fill" 
+                  cx="50" cy="50" r="42"
+                  style={{ strokeDashoffset: `${264 - (264 * client.progress) / 100}` }}
+                />
+              </svg>
+              <span className="progress-ring-text">{client.progress}%</span>
             </div>
-          ) : (
-            <p className="empty-state">No meetings scheduled</p>
-          )}
+            <span className="progress-label">Complete</span>
+          </div>
         </section>
 
-        {/* Final Project Record */}
-        <section className="final-record-section card">
-          <h2>Final Project Record</h2>
-          <p>Request a compiled package of all project documentation, files, and deliverables.</p>
-          <div className="record-status">
-            <span className="status-label">Status:</span>
-            <span className={`status-badge ${client.finalRecordStatus}`}>
-              {client.finalRecordStatus === "not_requested" && "Not Requested"}
-              {client.finalRecordStatus === "requested" && "Requested - Pending"}
-              {client.finalRecordStatus === "generated" && "Ready for Download"}
-              {client.finalRecordStatus === "delivered" && "Delivered"}
-            </span>
+        {/* Main Dashboard Grid */}
+        <div className="client-dashboard-grid">
+          {/* Main Content - Project Phases */}
+          <div className="dashboard-main">
+            <section className="phases-section card">
+              <h2>Project Phases</h2>
+              <div className="phases-list">
+                {visiblePhases.map(phase => {
+                  const completedSteps = phase.steps.filter(s => s.completed).length;
+                  const totalSteps = phase.steps.length;
+                  const phaseProgress = Math.round((completedSteps / totalSteps) * 100);
+
+                  return (
+                    <div key={phase.id} className="phase-item">
+                      <div className="phase-header">
+                        <h3>{phase.name}</h3>
+                        <span className="phase-progress">{completedSteps}/{totalSteps}</span>
+                      </div>
+                      <div className="phase-progress-bar">
+                        <div className="phase-fill" style={{ width: `${phaseProgress}%` }} />
+                      </div>
+                      <ul className="steps-list">
+                        {phase.steps.map(step => (
+                          <li key={step.id} className={step.completed ? "completed" : ""}>
+                            <span className="step-check">
+                              {step.completed ? "✓" : "○"}
+                            </span>
+                            {step.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Final Project Record - Below phases in main content */}
+            <section className="final-record-section card">
+              <div className="final-record-content">
+                <div className="final-record-info">
+                  <h2>Final Project Record</h2>
+                  <p>Request a compiled package of all project documentation, files, and deliverables.</p>
+                </div>
+                <div className="final-record-actions">
+                  <span className={`status-badge ${client.finalRecordStatus}`}>
+                    {client.finalRecordStatus === "not_requested" && "Not Requested"}
+                    {client.finalRecordStatus === "requested" && "Requested - Pending"}
+                    {client.finalRecordStatus === "generated" && "Ready for Download"}
+                    {client.finalRecordStatus === "delivered" && "Delivered"}
+                  </span>
+                  {client.finalRecordStatus === "not_requested" && (
+                    <button className="request-record-btn" onClick={onRequestFinalRecord}>
+                      Request Final Record
+                    </button>
+                  )}
+                  {client.finalRecordStatus === "generated" && (
+                    <button className="download-record-btn">
+                      Download ZIP
+                    </button>
+                  )}
+                </div>
+              </div>
+            </section>
           </div>
-          {client.finalRecordStatus === "not_requested" && (
-            <button className="request-record-btn" onClick={onRequestFinalRecord}>
-              Request Final Project Record
-            </button>
-          )}
-          {client.finalRecordStatus === "generated" && (
-            <button className="download-record-btn">
-              Download Final Record (ZIP)
-            </button>
-          )}
-        </section>
+
+          {/* Sidebar - Meetings, Uploads, Deliverables */}
+          <aside className="dashboard-sidebar">
+            {/* Scheduled Meetings */}
+            <section className="meetings-section card compact">
+              <h2>Scheduled Meetings</h2>
+              {client.meetingLinks.length > 0 ? (
+                <div className="meetings-list compact">
+                  {client.meetingLinks.map(meeting => (
+                    <div key={meeting.id} className="meeting-item compact">
+                      <div className="meeting-info">
+                        <strong>{meeting.title}</strong>
+                        <span className="meeting-date">{meeting.date}</span>
+                      </div>
+                      <a href={meeting.url} target="_blank" rel="noopener noreferrer" className="join-btn compact">
+                        Join
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-state compact">No meetings scheduled</p>
+              )}
+            </section>
+
+            {/* Your Uploads */}
+            <section className="upload-section card compact">
+              <div className="section-header">
+                <h2>Your Uploads</h2>
+                <button className="upload-btn compact" onClick={() => setUploadModalOpen(true)}>
+                  +
+                </button>
+              </div>
+              {client.clientFiles.length > 0 ? (
+                <div className="files-list compact">
+                  {client.clientFiles.map(file => (
+                    <div key={file.id} className="file-item compact">
+                      <span className="file-icon">{getFileIcon(file.type)}</span>
+                      <div className="file-info">
+                        <span className="file-name">{file.name}</span>
+                        <span className="file-meta">{file.size}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-state compact">No files uploaded</p>
+              )}
+            </section>
+
+            {/* Deliverables from Aegis */}
+            <section className="deliverables-section card compact">
+              <h2>Deliverables</h2>
+              {client.adminFiles.length > 0 ? (
+                <div className="files-list compact">
+                  {client.adminFiles.map(file => (
+                    <div key={file.id} className="file-item compact">
+                      <span className="file-icon">{getFileIcon(file.type)}</span>
+                      <div className="file-info">
+                        <span className="file-name">{file.name}</span>
+                        <span className="file-meta">{file.size}</span>
+                      </div>
+                      <button className="download-btn compact">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="empty-state compact">No deliverables yet</p>
+              )}
+            </section>
+          </aside>
+        </div>
       </main>
 
       {/* Upload Modal */}
@@ -873,7 +866,11 @@ function PhaseTemplateManager({
               </div>
               <div className="phase-actions">
                 <button className="action-btn" onClick={() => openEditPhase(phase)}>Edit</button>
-                <button className="action-btn danger" onClick={() => handleDeletePhase(phase.id)}>Delete</button>
+                <button className="action-btn danger icon-btn" onClick={() => handleDeletePhase(phase.id)} title="Delete phase">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6"/>
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -905,7 +902,11 @@ function PhaseTemplateManager({
                     <span className="step-name">{step.name}</span>
                     <div className="step-actions">
                       <button className="action-btn small" onClick={() => openEditStep(phase.id, step)}>Edit</button>
-                      <button className="action-btn small danger" onClick={() => handleDeleteStep(phase.id, step.id)}>Delete</button>
+                      <button className="action-btn danger icon-btn" onClick={() => handleDeleteStep(phase.id, step.id)} title="Delete step">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6"/>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))
@@ -1063,6 +1064,7 @@ function AdminPanel({
   onUpdateTemplates: (templates: PhaseTemplate[]) => void;
 }) {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [adminView, setAdminView] = useState<"clients" | "templates">("clients");
@@ -1230,44 +1232,83 @@ function AdminPanel({
           />
         </div>
       ) : (
-      <div className="admin-layout">
+      <div className={`admin-layout ${sidebarCollapsed ? 'sidebar-collapsed-state' : ''}`}>
         {/* Client List Sidebar */}
         <aside className="client-sidebar">
-          <div className="sidebar-header">
-            <div className="sidebar-title-row">
-              <h2>Clients</h2>
-              <button className="add-client-btn" onClick={() => setNewClientModalOpen(true)}>
-                + New Client
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Search clients..."
-              className="search-input"
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-            />
+          {/* Expand button - floating on the edge */}
+          <button 
+            className="sidebar-expand-btn" 
+            onClick={() => setSidebarCollapsed(false)}
+            title="Expand client list"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+
+          {/* Collapsed view - avatars only */}
+          <div className="sidebar-collapsed-content">
+            <ul className="client-avatars">
+              {filteredClients.map(client => (
+                <li
+                  key={client.id}
+                  className={`client-avatar ${selectedClient?.id === client.id ? "selected" : ""} ${client.product.toLowerCase()}`}
+                  onClick={() => {
+                    setSelectedClient(client);
+                    setSidebarCollapsed(true);
+                  }}
+                  title={client.name}
+                >
+                  {client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="client-list">
-            {filteredClients.map(client => (
-              <li
-                key={client.id}
-                className={`client-item ${selectedClient?.id === client.id ? "selected" : ""}`}
-                onClick={() => setSelectedClient(client)}
-              >
-                <div className="client-info">
-                  <strong>{client.name}</strong>
-                  <span className="client-email">{client.email}</span>
-                </div>
-                <div className="client-meta">
-                  <span className={`product-tag ${client.product.toLowerCase()}`}>
-                    {client.product}
-                  </span>
-                  <span className="progress-tag">{client.progress}%</span>
-                </div>
-              </li>
-            ))}
-          </ul>
+          
+          {/* Expanded view - full client list */}
+          <div className="sidebar-expanded">
+            <div className="sidebar-header">
+              <div className="sidebar-title-row">
+                <h2>Clients</h2>
+                <button className="add-client-btn" onClick={() => setNewClientModalOpen(true)}>
+                  + New Client
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder="Search clients..."
+                className="search-input"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <ul className="client-list">
+              {filteredClients.map(client => (
+                <li
+                  key={client.id}
+                  className={`client-item ${selectedClient?.id === client.id ? "selected" : ""}`}
+                  onClick={() => {
+                    setSelectedClient(client);
+                    setSidebarCollapsed(true);
+                  }}
+                >
+                  <div className="client-avatar-inline" data-product={client.product.toLowerCase()}>
+                    {client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="client-info">
+                    <strong>{client.name}</strong>
+                    <span className="client-email">{client.email}</span>
+                  </div>
+                  <div className="client-meta">
+                    <span className={`product-tag ${client.product.toLowerCase()}`}>
+                      {client.product}
+                    </span>
+                    <span className="progress-tag">{client.progress}%</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </aside>
 
         {/* Client Detail Panel */}
@@ -1291,7 +1332,7 @@ function AdminPanel({
                 </div>
               </div>
 
-              {/* Progress Management */}
+              {/* Progress Management - Full width */}
               <section className="admin-section">
                 <h2>Progress Management</h2>
                 <div className="progress-control">
@@ -1307,7 +1348,7 @@ function AdminPanel({
                 </div>
               </section>
 
-              {/* Phase/Step Management */}
+              {/* Phase/Step Management - Full width */}
               <section className="admin-section">
                 <h2>Phase & Step Management</h2>
                 <div className="phases-admin">
@@ -1410,57 +1451,60 @@ function AdminPanel({
                 )}
               </section>
 
-              {/* Meeting Links */}
-              <section className="admin-section">
-                <div className="section-header">
-                  <h2>Meeting Links</h2>
-                  <button className="add-btn">+ Add Meeting Link</button>
-                </div>
-                {selectedClient.meetingLinks.length > 0 ? (
-                  <div className="meetings-admin-list">
-                    {selectedClient.meetingLinks.map(meeting => (
-                      <div key={meeting.id} className="meeting-admin-item">
-                        <div>
-                          <strong>{meeting.title}</strong>
-                          <span className="meeting-date">{meeting.date}</span>
-                          <a href={meeting.url} target="_blank" rel="noopener noreferrer">{meeting.url}</a>
-                        </div>
-                        <div className="meeting-actions">
-                          <button className="action-btn">Edit</button>
-                          <button className="action-btn danger">Delete</button>
-                        </div>
-                      </div>
-                    ))}
+              {/* Meeting Links & Final Record Grid */}
+              <div className="admin-sections-grid">
+                {/* Meeting Links */}
+                <section className="admin-section">
+                  <div className="section-header">
+                    <h2>Meeting Links</h2>
+                    <button className="add-btn">+ Add Meeting Link</button>
                   </div>
-                ) : (
-                  <p className="empty-state">No meeting links added</p>
-                )}
-              </section>
+                  {selectedClient.meetingLinks.length > 0 ? (
+                    <div className="meetings-admin-list">
+                      {selectedClient.meetingLinks.map(meeting => (
+                        <div key={meeting.id} className="meeting-admin-item">
+                          <div>
+                            <strong>{meeting.title}</strong>
+                            <span className="meeting-date">{meeting.date}</span>
+                            <a href={meeting.url} target="_blank" rel="noopener noreferrer">{meeting.url}</a>
+                          </div>
+                          <div className="meeting-actions">
+                            <button className="action-btn">Edit</button>
+                            <button className="action-btn danger">Delete</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="empty-state">No meeting links added</p>
+                  )}
+                </section>
 
-              {/* Final Record Status */}
-              <section className="admin-section">
-                <h2>Final Project Record</h2>
-                <div className="final-record-admin">
-                  <div className="record-status-admin">
-                    <span>Status:</span>
-                    <span
-                      className="status-indicator"
-                      style={{ backgroundColor: getStatusColor(selectedClient.finalRecordStatus) }}
-                    >
-                      {selectedClient.finalRecordStatus.replace("_", " ").toUpperCase()}
-                    </span>
+                {/* Final Record Status */}
+                <section className="admin-section">
+                  <h2>Final Project Record</h2>
+                  <div className="final-record-admin">
+                    <div className="record-status-admin">
+                      <span>Status:</span>
+                      <span
+                        className="status-indicator"
+                        style={{ backgroundColor: getStatusColor(selectedClient.finalRecordStatus) }}
+                      >
+                        {selectedClient.finalRecordStatus.replace("_", " ").toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="record-actions">
+                      {selectedClient.finalRecordStatus === "requested" && (
+                        <button className="generate-btn">Generate Final Record</button>
+                      )}
+                      {selectedClient.finalRecordStatus === "generated" && (
+                        <button className="deliver-btn">Mark as Delivered</button>
+                      )}
+                      <button className="sync-btn">Sync to GHL</button>
+                    </div>
                   </div>
-                  <div className="record-actions">
-                    {selectedClient.finalRecordStatus === "requested" && (
-                      <button className="generate-btn">Generate Final Record</button>
-                    )}
-                    {selectedClient.finalRecordStatus === "generated" && (
-                      <button className="deliver-btn">Mark as Delivered</button>
-                    )}
-                    <button className="sync-btn">Sync to GHL</button>
-                  </div>
-                </div>
-              </section>
+                </section>
+              </div>
             </div>
           ) : (
             <div className="no-selection">
@@ -1502,25 +1546,27 @@ function AdminPanel({
           <div className="modal new-client-modal" onClick={e => e.stopPropagation()}>
             <h3>Create New Client</h3>
 
-            <div className="form-group">
-              <label>Client Name</label>
-              <input
-                type="text"
-                placeholder="e.g., John Smith"
-                value={newClientName}
-                onChange={e => setNewClientName(e.target.value)}
-                autoFocus
-              />
-            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Client Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., John Smith"
+                  value={newClientName}
+                  onChange={e => setNewClientName(e.target.value)}
+                  autoFocus
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Email Address</label>
-              <input
-                type="email"
-                placeholder="e.g., john.smith@email.com"
-                value={newClientEmail}
-                onChange={e => setNewClientEmail(e.target.value)}
-              />
+              <div className="form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  placeholder="e.g., john.smith@email.com"
+                  value={newClientEmail}
+                  onChange={e => setNewClientEmail(e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="form-group">
