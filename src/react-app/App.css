@@ -2207,6 +2207,8 @@
   padding: var(--space-8);
   max-width: var(--container-lg);
   margin: 0 auto;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .phase-template-manager {
