@@ -1,7 +1,10 @@
-import { useState } from "react";
-import type { Client, PhaseTemplate, Phase, FinalRecordStatus, ProductType } from "../types";
+import { useState, useCallback, useMemo, memo } from "react";
+import type { Client, PhaseTemplate, Phase, ProductType } from "../types";
 import { AVAILABLE_MODULES } from "../data/mockData";
+import { getFileIcon, getStatusColor, generateId, getInitials } from "../utils/helpers";
 import { PhaseTemplateManager } from "./PhaseTemplateManager";
+import { ShieldIcon, ChevronRightIcon, UserFilledIcon } from "./ui/Icons";
+import { UploadModal } from "./ui/Modal";
 
 interface AdminPanelProps {
   clients: Client[];
@@ -12,7 +15,60 @@ interface AdminPanelProps {
   onUpdateTemplates: (templates: PhaseTemplate[]) => void;
 }
 
-export function AdminPanel({
+// Memoized client list item to prevent re-renders
+const ClientListItem = memo(function ClientListItem({
+  client,
+  isSelected,
+  onSelect,
+}: {
+  client: Client;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <li
+      className={`client-item ${isSelected ? "selected" : ""}`}
+      onClick={onSelect}
+    >
+      <div className="client-avatar-inline" data-product={client.product.toLowerCase()}>
+        {getInitials(client.name)}
+      </div>
+      <div className="client-info">
+        <strong>{client.name}</strong>
+        <span className="client-email">{client.email}</span>
+      </div>
+      <div className="client-meta">
+        <span className={`product-tag ${client.product.toLowerCase()}`}>
+          {client.product}
+        </span>
+        <span className="progress-tag">{client.progress}%</span>
+      </div>
+    </li>
+  );
+});
+
+// Memoized client avatar for collapsed view
+const ClientAvatar = memo(function ClientAvatar({
+  client,
+  isSelected,
+  onSelect,
+}: {
+  client: Client;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <li
+      className={`client-avatar ${isSelected ? "selected" : ""} ${client.product.toLowerCase()}`}
+      onClick={onSelect}
+      title={client.name}
+    >
+      {getInitials(client.name)}
+    </li>
+  );
+});
+
+export const AdminPanel = memo(function AdminPanel({
   clients,
   onLogout,
   onUpdateClient,
@@ -20,7 +76,7 @@ export function AdminPanel({
   phaseTemplates,
   onUpdateTemplates,
 }: AdminPanelProps) {
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -33,15 +89,28 @@ export function AdminPanel({
   const [newClientProduct, setNewClientProduct] = useState<ProductType>("ZEUS");
   const [newClientModules, setNewClientModules] = useState<string[]>([]);
 
-  const generateId = () => `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Memoized selected client lookup
+  const selectedClient = useMemo(() => 
+    clients.find(c => c.id === selectedClientId) ?? null,
+    [clients, selectedClientId]
+  );
+
+  // Memoized filtered clients
+  const filteredClients = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    if (!term) return clients;
+    return clients.filter(c =>
+      c.name.toLowerCase().includes(term) ||
+      c.email.toLowerCase().includes(term)
+    );
+  }, [clients, searchTerm]);
 
   // Create phases from templates based on product type and selected modules
-  const createPhasesFromTemplates = (product: ProductType, modules: string[]): Phase[] => {
-    // Filter templates based on product type and selected modules
+  const createPhasesFromTemplates = useCallback((product: ProductType, modules: string[]): Phase[] => {
     const relevantTemplates = product === "ZEUS"
       ? phaseTemplates
       : phaseTemplates.filter(template =>
-          template.modules.length === 0 || // Universal phases
+          template.modules.length === 0 ||
           template.modules.some(mod => modules.includes(mod))
         );
 
@@ -55,16 +124,16 @@ export function AdminPanel({
         completed: false,
       })),
     }));
-  };
+  }, [phaseTemplates]);
 
-  const handleAddNewClient = () => {
+  const handleAddNewClient = useCallback(() => {
     if (!newClientName.trim() || !newClientEmail.trim()) return;
     if (newClientProduct === "HESTIA" && newClientModules.length === 0) return;
 
     const phases = createPhasesFromTemplates(newClientProduct, newClientModules);
 
     const newClient: Client = {
-      id: generateId(),
+      id: generateId("client"),
       name: newClientName.trim(),
       email: newClientEmail.trim(),
       product: newClientProduct,
@@ -78,7 +147,7 @@ export function AdminPanel({
     };
 
     onAddClient(newClient);
-    setSelectedClient(newClient);
+    setSelectedClientId(newClient.id);
 
     // Reset form
     setNewClientName("");
@@ -86,30 +155,25 @@ export function AdminPanel({
     setNewClientProduct("ZEUS");
     setNewClientModules([]);
     setNewClientModalOpen(false);
-  };
+  }, [newClientName, newClientEmail, newClientProduct, newClientModules, createPhasesFromTemplates, onAddClient]);
 
-  const toggleNewClientModule = (moduleId: string) => {
+  const toggleNewClientModule = useCallback((moduleId: string) => {
     setNewClientModules(prev =>
       prev.includes(moduleId)
         ? prev.filter(m => m !== moduleId)
         : [...prev, moduleId]
     );
-  };
+  }, []);
 
-  const resetNewClientModal = () => {
+  const resetNewClientModal = useCallback(() => {
     setNewClientName("");
     setNewClientEmail("");
     setNewClientProduct("ZEUS");
     setNewClientModules([]);
     setNewClientModalOpen(false);
-  };
+  }, []);
 
-  const filteredClients = clients.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleStepToggle = (phaseId: string, stepId: string) => {
+  const handleStepToggle = useCallback((phaseId: string, stepId: string) => {
     if (!selectedClient) return;
 
     const updatedPhases = selectedClient.phases.map(phase => {
@@ -129,47 +193,63 @@ export function AdminPanel({
     const newProgress = Math.round((completedSteps / totalSteps) * 100);
 
     onUpdateClient(selectedClient.id, { phases: updatedPhases, progress: newProgress });
-  };
+  }, [selectedClient, onUpdateClient]);
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case "document": return "📄";
-      case "image": return "🖼️";
-      case "video": return "🎬";
-      default: return "📎";
-    }
-  };
+  const handleSelectClient = useCallback((clientId: string) => {
+    setSelectedClientId(clientId);
+    setSidebarCollapsed(true);
+  }, []);
 
-  const getStatusColor = (status: FinalRecordStatus) => {
-    switch (status) {
-      case "not_requested": return "#6b7280";
-      case "requested": return "#f59e0b";
-      case "generated": return "#10b981";
-      case "delivered": return "#3b82f6";
-      default: return "#6b7280";
-    }
-  };
+  const handleExpandSidebar = useCallback(() => {
+    setSidebarCollapsed(false);
+  }, []);
+
+  const handleOpenNewClientModal = useCallback(() => {
+    setNewClientModalOpen(true);
+  }, []);
+
+  const handleCloseUploadModal = useCallback(() => {
+    setUploadModalOpen(false);
+  }, []);
+
+  const handleOpenUploadModal = useCallback(() => {
+    setUploadModalOpen(true);
+  }, []);
+
+  const handleSetAdminViewClients = useCallback(() => {
+    setAdminView("clients");
+  }, []);
+
+  const handleSetAdminViewTemplates = useCallback(() => {
+    setAdminView("templates");
+  }, []);
+
+  // Memoized validation for submit button
+  const isNewClientValid = useMemo(() => 
+    newClientName.trim() && 
+    newClientEmail.trim() && 
+    (newClientProduct !== "HESTIA" || newClientModules.length > 0),
+    [newClientName, newClientEmail, newClientProduct, newClientModules]
+  );
 
   return (
     <div className="dashboard admin-dashboard">
       <header className="dashboard-header admin-header">
         <div className="header-left">
           <div className="logo-small">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-            </svg>
+            <ShieldIcon />
             <span>Aegis Shield Admin</span>
           </div>
           <nav className="admin-nav">
             <button
               className={`nav-tab ${adminView === "clients" ? "active" : ""}`}
-              onClick={() => setAdminView("clients")}
+              onClick={handleSetAdminViewClients}
             >
               Clients
             </button>
             <button
               className={`nav-tab ${adminView === "templates" ? "active" : ""}`}
-              onClick={() => setAdminView("templates")}
+              onClick={handleSetAdminViewTemplates}
             >
               Phase Templates
             </button>
@@ -192,32 +272,24 @@ export function AdminPanel({
       <div className={`admin-layout ${sidebarCollapsed ? 'sidebar-collapsed-state' : ''}`}>
         {/* Client List Sidebar */}
         <aside className="client-sidebar">
-          {/* Expand button - floating on the edge */}
           <button 
             className="sidebar-expand-btn" 
-            onClick={() => setSidebarCollapsed(false)}
+            onClick={handleExpandSidebar}
             title="Expand client list"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
+            <ChevronRightIcon />
           </button>
 
           {/* Collapsed view - avatars only */}
           <div className="sidebar-collapsed-content">
             <ul className="client-avatars">
               {filteredClients.map(client => (
-                <li
+                <ClientAvatar
                   key={client.id}
-                  className={`client-avatar ${selectedClient?.id === client.id ? "selected" : ""} ${client.product.toLowerCase()}`}
-                  onClick={() => {
-                    setSelectedClient(client);
-                    setSidebarCollapsed(true);
-                  }}
-                  title={client.name}
-                >
-                  {client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                </li>
+                  client={client}
+                  isSelected={selectedClientId === client.id}
+                  onSelect={() => handleSelectClient(client.id)}
+                />
               ))}
             </ul>
           </div>
@@ -227,7 +299,7 @@ export function AdminPanel({
             <div className="sidebar-header">
               <div className="sidebar-title-row">
                 <h2>Clients</h2>
-                <button className="add-client-btn" onClick={() => setNewClientModalOpen(true)}>
+                <button className="add-client-btn" onClick={handleOpenNewClientModal}>
                   + New Client
                 </button>
               </div>
@@ -241,28 +313,12 @@ export function AdminPanel({
             </div>
             <ul className="client-list">
               {filteredClients.map(client => (
-                <li
+                <ClientListItem
                   key={client.id}
-                  className={`client-item ${selectedClient?.id === client.id ? "selected" : ""}`}
-                  onClick={() => {
-                    setSelectedClient(client);
-                    setSidebarCollapsed(true);
-                  }}
-                >
-                  <div className="client-avatar-inline" data-product={client.product.toLowerCase()}>
-                    {client.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                  </div>
-                  <div className="client-info">
-                    <strong>{client.name}</strong>
-                    <span className="client-email">{client.email}</span>
-                  </div>
-                  <div className="client-meta">
-                    <span className={`product-tag ${client.product.toLowerCase()}`}>
-                      {client.product}
-                    </span>
-                    <span className="progress-tag">{client.progress}%</span>
-                  </div>
-                </li>
+                  client={client}
+                  isSelected={selectedClientId === client.id}
+                  onSelect={() => handleSelectClient(client.id)}
+                />
               ))}
             </ul>
           </div>
@@ -372,7 +428,7 @@ export function AdminPanel({
               <section className="admin-section">
                 <div className="section-header">
                   <h2>Deliverables (Admin Uploads)</h2>
-                  <button className="upload-btn" onClick={() => setUploadModalOpen(true)}>
+                  <button className="upload-btn" onClick={handleOpenUploadModal}>
                     + Upload Deliverable
                   </button>
                 </div>
@@ -466,9 +522,7 @@ export function AdminPanel({
           ) : (
             <div className="no-selection">
               <div className="no-selection-icon">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
+                <UserFilledIcon />
               </div>
               <h2>Select a Client</h2>
               <p>Choose a client from the list to view and manage their project</p>
@@ -479,23 +533,12 @@ export function AdminPanel({
       )}
 
       {/* Upload Modal */}
-      {uploadModalOpen && (
-        <div className="modal-overlay" onClick={() => setUploadModalOpen(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Upload Deliverable</h3>
-            <div className="upload-area">
-              <div className="upload-icon">📁</div>
-              <p>Drag and drop files here or click to browse</p>
-              <p className="upload-hint">Supports: PDF, Images, Documents</p>
-              <input type="file" className="file-input" />
-            </div>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={() => setUploadModalOpen(false)}>Cancel</button>
-              <button className="submit-btn" onClick={() => setUploadModalOpen(false)}>Upload</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <UploadModal
+        isOpen={uploadModalOpen}
+        onClose={handleCloseUploadModal}
+        title="Upload Deliverable"
+        hint="Supports: PDF, Images, Documents"
+      />
 
       {/* New Client Modal */}
       {newClientModalOpen && (
@@ -588,11 +631,7 @@ export function AdminPanel({
               <button
                 className="submit-btn"
                 onClick={handleAddNewClient}
-                disabled={
-                  !newClientName.trim() ||
-                  !newClientEmail.trim() ||
-                  (newClientProduct === "HESTIA" && newClientModules.length === 0)
-                }
+                disabled={!isNewClientValid}
               >
                 Create Client
               </button>
@@ -602,4 +641,4 @@ export function AdminPanel({
       )}
     </div>
   );
-}
+});

@@ -1,5 +1,8 @@
-import { useState } from "react";
-import type { Client } from "../types";
+import { useState, useCallback, useMemo, memo } from "react";
+import type { Client, Phase } from "../types";
+import { getFileIcon, capitalize } from "../utils/helpers";
+import { ShieldIcon, DownloadIcon } from "./ui/Icons";
+import { UploadModal } from "./ui/Modal";
 
 interface ClientDashboardProps {
   client: Client;
@@ -7,37 +10,131 @@ interface ClientDashboardProps {
   onRequestFinalRecord: () => void;
 }
 
-export function ClientDashboard({
+// Memoized phase card component
+const PhaseCard = memo(function PhaseCard({ phase }: { phase: Phase }) {
+  const completedSteps = phase.steps.filter(s => s.completed).length;
+  const totalSteps = phase.steps.length;
+  const phaseProgress = Math.round((completedSteps / totalSteps) * 100);
+
+  return (
+    <div className="phase-item">
+      <div className="phase-header">
+        <h3>{phase.name}</h3>
+        <span className="phase-progress">{completedSteps}/{totalSteps}</span>
+      </div>
+      <div className="phase-progress-bar">
+        <div className="phase-fill" style={{ width: `${phaseProgress}%` }} />
+      </div>
+      <ul className="steps-list">
+        {phase.steps.map(step => (
+          <li key={step.id} className={step.completed ? "completed" : ""}>
+            <span className="step-check">
+              {step.completed ? "✓" : "○"}
+            </span>
+            {step.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
+
+// Memoized file item component
+const FileItem = memo(function FileItem({ 
+  file, 
+  showDownload = false 
+}: { 
+  file: { id: string; name: string; type: string; size: string }; 
+  showDownload?: boolean;
+}) {
+  return (
+    <div className="file-item compact">
+      <span className="file-icon">{getFileIcon(file.type)}</span>
+      <div className="file-info">
+        <span className="file-name">{file.name}</span>
+        <span className="file-meta">{file.size}</span>
+      </div>
+      {showDownload && (
+        <button className="download-btn compact">
+          <DownloadIcon />
+        </button>
+      )}
+    </div>
+  );
+});
+
+// Memoized meeting item component
+const MeetingItem = memo(function MeetingItem({ 
+  meeting 
+}: { 
+  meeting: { id: string; title: string; date: string; url: string };
+}) {
+  return (
+    <div className="meeting-item compact">
+      <div className="meeting-info">
+        <strong>{meeting.title}</strong>
+        <span className="meeting-date">{meeting.date}</span>
+      </div>
+      <a href={meeting.url} target="_blank" rel="noopener noreferrer" className="join-btn compact">
+        Join
+      </a>
+    </div>
+  );
+});
+
+export const ClientDashboard = memo(function ClientDashboard({
   client,
   onLogout,
   onRequestFinalRecord
 }: ClientDashboardProps) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
 
-  // Filter phases based on product type
-  const visiblePhases = client.product === "ZEUS"
-    ? client.phases
-    : client.phases.filter(phase =>
-        client.hestiaModules.some(mod => phase.modules.includes(mod))
-      );
+  // Memoized visible phases based on product type
+  const visiblePhases = useMemo(() => {
+    if (client.product === "ZEUS") return client.phases;
+    return client.phases.filter(phase =>
+      client.hestiaModules.some(mod => phase.modules.includes(mod))
+    );
+  }, [client.phases, client.product, client.hestiaModules]);
 
-  const getFileIcon = (type: string) => {
-    switch (type) {
-      case "document": return "📄";
-      case "image": return "🖼️";
-      case "video": return "🎬";
-      default: return "📎";
+  // Memoized modules display string
+  const modulesDisplay = useMemo(() => 
+    client.hestiaModules.map(capitalize).join(", "),
+    [client.hestiaModules]
+  );
+
+  // Memoized first name
+  const firstName = useMemo(() => 
+    client.name.split(" ")[0],
+    [client.name]
+  );
+
+  // Memoized status text
+  const statusText = useMemo(() => {
+    switch (client.finalRecordStatus) {
+      case "not_requested": return "Not Requested";
+      case "requested": return "Requested - Pending";
+      case "generated": return "Ready for Download";
+      case "delivered": return "Delivered";
+      default: return "";
     }
-  };
+  }, [client.finalRecordStatus]);
+
+  // Callbacks
+  const handleOpenUploadModal = useCallback(() => {
+    setUploadModalOpen(true);
+  }, []);
+
+  const handleCloseUploadModal = useCallback(() => {
+    setUploadModalOpen(false);
+  }, []);
 
   return (
     <div className="dashboard client-dashboard">
       <header className="dashboard-header">
         <div className="header-left">
           <div className="logo-small">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
-            </svg>
+            <ShieldIcon />
             <span>Aegis Shield</span>
           </div>
         </div>
@@ -51,14 +148,14 @@ export function ClientDashboard({
         {/* Welcome Section */}
         <section className="welcome-section">
           <div className="welcome-content">
-            <h1>Welcome, {client.name.split(" ")[0]}!</h1>
+            <h1>Welcome, {firstName}!</h1>
             <div className="product-badge">
               <span className={`badge ${client.product.toLowerCase()}`}>
                 {client.product === "ZEUS" ? "ZEUS Full Bundle" : "HESTIA A La Carte"}
               </span>
               {client.product === "HESTIA" && (
                 <span className="modules-list">
-                  Modules: {client.hestiaModules.map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(", ")}
+                  Modules: {modulesDisplay}
                 </span>
               )}
             </div>
@@ -87,33 +184,9 @@ export function ClientDashboard({
             <section className="phases-section card">
               <h2>Project Phases</h2>
               <div className="phases-list">
-                {visiblePhases.map(phase => {
-                  const completedSteps = phase.steps.filter(s => s.completed).length;
-                  const totalSteps = phase.steps.length;
-                  const phaseProgress = Math.round((completedSteps / totalSteps) * 100);
-
-                  return (
-                    <div key={phase.id} className="phase-item">
-                      <div className="phase-header">
-                        <h3>{phase.name}</h3>
-                        <span className="phase-progress">{completedSteps}/{totalSteps}</span>
-                      </div>
-                      <div className="phase-progress-bar">
-                        <div className="phase-fill" style={{ width: `${phaseProgress}%` }} />
-                      </div>
-                      <ul className="steps-list">
-                        {phase.steps.map(step => (
-                          <li key={step.id} className={step.completed ? "completed" : ""}>
-                            <span className="step-check">
-                              {step.completed ? "✓" : "○"}
-                            </span>
-                            {step.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  );
-                })}
+                {visiblePhases.map(phase => (
+                  <PhaseCard key={phase.id} phase={phase} />
+                ))}
               </div>
             </section>
 
@@ -126,10 +199,7 @@ export function ClientDashboard({
                 </div>
                 <div className="final-record-actions">
                   <span className={`status-badge ${client.finalRecordStatus}`}>
-                    {client.finalRecordStatus === "not_requested" && "Not Requested"}
-                    {client.finalRecordStatus === "requested" && "Requested - Pending"}
-                    {client.finalRecordStatus === "generated" && "Ready for Download"}
-                    {client.finalRecordStatus === "delivered" && "Delivered"}
+                    {statusText}
                   </span>
                   {client.finalRecordStatus === "not_requested" && (
                     <button className="request-record-btn" onClick={onRequestFinalRecord}>
@@ -154,15 +224,7 @@ export function ClientDashboard({
               {client.meetingLinks.length > 0 ? (
                 <div className="meetings-list compact">
                   {client.meetingLinks.map(meeting => (
-                    <div key={meeting.id} className="meeting-item compact">
-                      <div className="meeting-info">
-                        <strong>{meeting.title}</strong>
-                        <span className="meeting-date">{meeting.date}</span>
-                      </div>
-                      <a href={meeting.url} target="_blank" rel="noopener noreferrer" className="join-btn compact">
-                        Join
-                      </a>
-                    </div>
+                    <MeetingItem key={meeting.id} meeting={meeting} />
                   ))}
                 </div>
               ) : (
@@ -174,20 +236,14 @@ export function ClientDashboard({
             <section className="upload-section card compact">
               <div className="section-header">
                 <h2>Your Uploads</h2>
-                <button className="upload-btn compact" onClick={() => setUploadModalOpen(true)}>
+                <button className="upload-btn compact" onClick={handleOpenUploadModal}>
                   +
                 </button>
               </div>
               {client.clientFiles.length > 0 ? (
                 <div className="files-list compact">
                   {client.clientFiles.map(file => (
-                    <div key={file.id} className="file-item compact">
-                      <span className="file-icon">{getFileIcon(file.type)}</span>
-                      <div className="file-info">
-                        <span className="file-name">{file.name}</span>
-                        <span className="file-meta">{file.size}</span>
-                      </div>
-                    </div>
+                    <FileItem key={file.id} file={file} />
                   ))}
                 </div>
               ) : (
@@ -201,18 +257,7 @@ export function ClientDashboard({
               {client.adminFiles.length > 0 ? (
                 <div className="files-list compact">
                   {client.adminFiles.map(file => (
-                    <div key={file.id} className="file-item compact">
-                      <span className="file-icon">{getFileIcon(file.type)}</span>
-                      <div className="file-info">
-                        <span className="file-name">{file.name}</span>
-                        <span className="file-meta">{file.size}</span>
-                      </div>
-                      <button className="download-btn compact">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
-                    </div>
+                    <FileItem key={file.id} file={file} showDownload />
                   ))}
                 </div>
               ) : (
@@ -224,23 +269,10 @@ export function ClientDashboard({
       </main>
 
       {/* Upload Modal */}
-      {uploadModalOpen && (
-        <div className="modal-overlay" onClick={() => setUploadModalOpen(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Upload File</h3>
-            <div className="upload-area">
-              <div className="upload-icon">📁</div>
-              <p>Drag and drop files here or click to browse</p>
-              <p className="upload-hint">Supports: PDF, Images, Videos, Documents</p>
-              <input type="file" className="file-input" />
-            </div>
-            <div className="modal-actions">
-              <button className="cancel-btn" onClick={() => setUploadModalOpen(false)}>Cancel</button>
-              <button className="submit-btn" onClick={() => setUploadModalOpen(false)}>Upload</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <UploadModal
+        isOpen={uploadModalOpen}
+        onClose={handleCloseUploadModal}
+      />
     </div>
   );
-}
+});
