@@ -2,6 +2,7 @@
 
 /* ============ CSS VARIABLES ============ */
 :root {
+  /* Brand Colors */
   --primary-color: #1e40af;
   --primary-dark: #1e3a8a;
   --primary-light: #3b82f6;
@@ -9,6 +10,10 @@
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
+  --zeus-color: #7c3aed;
+  --hestia-color: #059669;
+
+  /* Gray Scale */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
@@ -19,13 +24,74 @@
   --gray-700: #374151;
   --gray-800: #1f2937;
   --gray-900: #111827;
-  --zeus-color: #7c3aed;
-  --hestia-color: #059669;
-  --border-radius: 8px;
+
+  /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Login Page Design Tokens */
+.login-page {
+  /* Colors */
+  --login-bg-start: #0f172a;
+  --login-bg-mid: #1e293b;
+  --login-bg-end: #334155;
+  --login-accent-blue: #60a5fa;
+  --login-accent-purple: #a78bfa;
+  --login-accent-cyan: #06b6d4;
+  --login-orb-blue: #3b82f6;
+  --login-orb-purple: #8b5cf6;
+
+  /* Glass Effect */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.05);
+  --glass-bg-hover: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border-subtle: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.3);
+  --glass-blur: blur(10px);
+  --glass-blur-strong: blur(20px);
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --text-subtle: rgba(255, 255, 255, 0.4);
+
+  /* Spacing Scale (responsive) */
+  --space-xs: clamp(0.5rem, 1vw, 0.75rem);
+  --space-sm: clamp(0.875rem, 1.5vw, 1.25rem);
+  --space-md: clamp(1.25rem, 2.5vw, 1.75rem);
+  --space-lg: clamp(1.5rem, 3vw, 2.5rem);
+
+  /* Font Sizes (responsive) */
+  --text-xs: clamp(0.75rem, 1.5vw, 0.875rem);
+  --text-sm: clamp(0.8125rem, 1.5vw, 0.9375rem);
+  --text-base: clamp(0.875rem, 1.8vw, 1rem);
+  --text-lg: clamp(1rem, 2vw, 1.125rem);
+  --text-xl: clamp(1.25rem, 3vw, 1.75rem);
+  --text-2xl: clamp(1.5rem, 4vw, 2.25rem);
+
+  /* Icon Sizes */
+  --icon-sm: clamp(2.25rem, 4vw, 3rem);
+  --icon-md: clamp(2.5rem, 5vw, 3.25rem);
+
+  /* Border Radius (responsive) */
+  --radius-card: clamp(0.75rem, 1.5vw, 1rem);
+  --radius-panel: clamp(1rem, 2vw, 1.25rem);
 }
 
 /* ============ RESET & BASE ============ */
@@ -51,224 +117,433 @@ body {
 /* ============ LOGIN PAGE ============ */
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  padding: 1rem;
-}
-
-/* Desktop split-screen layout */
-.login-wrapper {
-  display: flex;
-  width: 100%;
-  max-width: 1400px;
-  min-height: 600px;
-  background: white;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-}
-
-.login-branding {
-  display: none;
-  flex: 1;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-color) 100%);
-  padding: 4rem;
-  color: white;
+  background: linear-gradient(135deg, var(--login-bg-start) 0%, var(--login-bg-mid) 50%, var(--login-bg-end) 100%);
+  padding: var(--space-sm);
   position: relative;
   overflow: hidden;
 }
 
-.login-branding::before {
-  content: '';
+/* Background Orbs */
+.bg-orb {
   position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(clamp(60px, 10vw, 100px));
+  opacity: 0.4;
+  animation: float 20s infinite ease-in-out;
+  pointer-events: none;
 }
 
-.login-branding-content {
+.orb-1 {
+  width: clamp(300px, 40vw, 600px);
+  height: clamp(300px, 40vw, 600px);
+  background: radial-gradient(circle, var(--login-orb-blue) 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+}
+
+.orb-2 {
+  width: clamp(250px, 35vw, 500px);
+  height: clamp(250px, 35vw, 500px);
+  background: radial-gradient(circle, var(--login-orb-purple) 0%, transparent 70%);
+  bottom: -5%;
+  right: -5%;
+  animation-delay: 7s;
+}
+
+.orb-3 {
+  width: clamp(200px, 30vw, 400px);
+  height: clamp(200px, 30vw, 400px);
+  background: radial-gradient(circle, var(--login-accent-cyan) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  animation-delay: 14s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(1.5rem, -1.5rem) scale(1.1); }
+  66% { transform: translate(-1rem, 1rem) scale(0.9); }
+}
+
+/* Layout Container */
+.login-container {
   position: relative;
   z-index: 1;
-  height: 100%;
+  width: 100%;
+  max-width: min(90rem, 95%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: var(--space-md);
+  margin: 0 auto;
 }
 
-.login-branding h2 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.1;
-}
-
-.login-branding p {
-  font-size: 1.25rem;
-  opacity: 0.9;
-  line-height: 1.6;
-  margin: 0 0 2rem 0;
-}
-
-.login-features {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.login-features li {
+/* Header */
+.login-header {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  opacity: 0.9;
-}
-
-.login-features li::before {
-  content: '✓';
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  font-weight: bold;
-}
-
-.login-container {
-  background: white;
-  border-radius: 16px;
-  padding: 3rem 2.5rem;
-  box-shadow: var(--shadow-lg);
-  max-width: 420px;
-  width: 100%;
+  flex-direction: column;
+  gap: var(--space-lg);
   text-align: center;
+  width: 100%;
 }
 
-.login-logo {
-  margin-bottom: 2rem;
-}
-
-.shield-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  border-radius: 50%;
+.brand-lockup {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-md);
+  gap: var(--space-sm);
+}
+
+.brand-text {
+  text-align: left;
+  flex: 1;
+}
+
+.brand-text h1 {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.brand-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: 0.375rem;
+}
+
+/* Glass Panel Base - shared by multiple components */
+.shield-icon,
+.value-prop,
+.login-card,
+.login-option,
+.feature-item,
+.option-icon {
+  background: var(--glass-bg-subtle);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-subtle);
+}
+
+.login-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur-strong);
+  border-color: var(--glass-border);
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.3);
+}
+
+/* Shield Icon */
+.shield-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  border-radius: var(--radius-card);
+  border-color: var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--login-accent-blue);
+  flex-shrink: 0;
 }
 
 .shield-icon svg {
-  width: 48px;
-  height: 48px;
-  color: white;
+  width: 60%;
+  height: 60%;
 }
 
-.login-logo h1 {
-  font-size: 2rem;
-  color: var(--gray-900);
-  margin: 0 0 0.5rem 0;
-  font-weight: 700;
-}
-
-.tagline {
-  color: var(--gray-500);
-  font-size: 1rem;
-  margin: 0;
-}
-
-.login-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.login-btn {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
-  border: 2px solid transparent;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
+/* Value Prop */
+.value-prop {
+  border-radius: var(--radius-panel);
+  padding: var(--space-md);
   width: 100%;
 }
 
-.login-btn .btn-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+.value-prop h2 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: 1.3;
+}
+
+.value-prop p {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Login Card */
+.login-card {
+  border-radius: var(--radius-panel);
+  padding: var(--space-lg);
+  width: 100%;
+}
+
+.card-header {
+  margin-bottom: var(--space-md);
+  text-align: center;
+}
+
+.card-header h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.card-header p {
+  font-size: var(--text-base);
+  color: var(--text-muted);
+}
+
+/* Login Options */
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.login-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-width: 2px;
+  border-radius: var(--radius-card);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-align: left;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  min-height: 4rem;
+}
+
+.login-option::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.login-option:hover::before {
+  opacity: 1;
+}
+
+.login-option:hover {
+  border-color: var(--glass-border-hover);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.625rem 1.875rem rgba(0, 0, 0, 0.3);
+}
+
+.login-option:active {
+  transform: translateY(0);
+}
+
+/* Option Icon */
+.option-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  border-radius: var(--radius-sm);
+  border-color: var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  transition: var(--transition-base);
 }
 
-.login-btn .btn-icon svg {
-  width: 24px;
-  height: 24px;
+.login-option:hover .option-icon {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
 }
 
-.login-btn .btn-text {
+.client-option .option-icon { color: var(--login-accent-blue); }
+.admin-option .option-icon { color: var(--login-accent-purple); }
+
+.option-icon svg {
+  width: 55%;
+  height: 55%;
+}
+
+/* Option Content */
+.option-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 }
 
-.login-btn .btn-text strong {
-  font-size: 1.1rem;
+.option-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
 }
 
-.login-btn .btn-text small {
-  font-size: 0.85rem;
-  opacity: 0.8;
+.option-description {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
-.client-btn {
-  background: var(--primary-color);
-  color: white;
+/* Option Arrow */
+.option-arrow {
+  width: var(--space-sm);
+  height: var(--space-sm);
+  color: var(--text-subtle);
+  flex-shrink: 0;
+  transition: var(--transition-base);
 }
 
-.client-btn .btn-icon {
-  background: rgba(255, 255, 255, 0.2);
+.option-arrow svg {
+  width: 100%;
+  height: 100%;
 }
 
-.client-btn:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+.login-option:hover .option-arrow {
+  color: var(--text-secondary);
+  transform: translateX(0.25rem);
 }
 
-.admin-btn {
-  background: var(--gray-800);
-  color: white;
-}
-
-.admin-btn .btn-icon {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.admin-btn:hover {
-  background: var(--gray-900);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+/* Card Footer */
+.card-footer {
+  text-align: center;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--glass-border-subtle);
 }
 
 .demo-note {
-  color: var(--gray-400);
-  font-size: 0.85rem;
-  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  font-weight: 500;
+}
+
+/* Feature Grid */
+.feature-grid {
+  display: none;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.feature-item {
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  transition: var(--transition-base);
+}
+
+.feature-item:hover {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  transform: translateY(-0.125rem);
+}
+
+.feature-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--login-accent-blue);
+  margin-bottom: var(--space-xs);
+}
+
+.feature-icon svg {
+  width: 55%;
+  height: 55%;
+}
+
+.feature-item h4 {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+}
+
+.feature-item p {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ============ LOGIN RESPONSIVE ============ */
+
+/* Tablet: Show features */
+@media (min-width: 48rem) {
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop: Side-by-side layout */
+@media (min-width: 68rem) and (min-height: 600px) {
+  .login-page {
+    --space-sm: clamp(0.75rem, 1.5vh, 1.25rem);
+    --space-md: clamp(1rem, 2vh, 1.5rem);
+  }
+
+  .login-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    max-height: calc(100vh - 3rem);
+  }
+
+  .login-header {
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .brand-lockup {
+    justify-content: flex-start;
+  }
+
+  .login-card {
+    flex: 0 0 clamp(26rem, 42%, 32rem);
+    align-self: stretch;
+  }
+
+  .feature-grid {
+    flex: 1 1 0;
+    min-width: 0;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    align-content: start;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 85rem) and (min-height: 700px) {
+  .login-container {
+    max-width: 100rem;
+  }
+
+  .login-card {
+    flex-basis: clamp(28rem, 40%, 36rem);
+  }
+}
+
+/* Extra large */
+@media (min-width: 105rem) and (min-height: 800px) {
+  .login-container {
+    max-width: 120rem;
+  }
+
+  .login-card {
+    flex-basis: clamp(30rem, 38%, 40rem);
+  }
 }
 
 /* ============ DASHBOARD COMMON ============ */
@@ -1911,180 +2186,6 @@ body {
   }
 }
 
-/* ============ DESKTOP RESPONSIVE (1024px+) ============ */
-@media (min-width: 1024px) {
-  /* Login Page - Larger presence on desktop */
-  .login-container {
-    padding: 3.5rem 3rem;
-    max-width: 460px;
-  }
-
-  .shield-icon {
-    width: 100px;
-    height: 100px;
-  }
-
-  .shield-icon svg {
-    width: 56px;
-    height: 56px;
-  }
-
-  .login-logo h1 {
-    font-size: 2.25rem;
-  }
-
-  .tagline {
-    font-size: 1.1rem;
-  }
-
-  .login-btn {
-    padding: 1.15rem 1.75rem;
-  }
-
-  .login-btn .btn-text strong {
-    font-size: 1.15rem;
-  }
-
-  /* Dashboard - Wider content area */
-  .dashboard-content {
-    max-width: 1000px;
-    padding: 2.5rem;
-  }
-
-  .dashboard-header {
-    padding: 1.25rem 2.5rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 2.25rem;
-  }
-
-  .card {
-    padding: 1.75rem;
-  }
-
-  .card h2 {
-    font-size: 1.35rem;
-  }
-
-  /* Progress Bar - Larger on desktop */
-  .progress-bar.large {
-    height: 20px;
-  }
-
-  .progress-text {
-    font-size: 1.1rem;
-  }
-
-  /* Phases - Two column grid on desktop */
-  .phases-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .phase-item {
-    padding: 1.25rem;
-  }
-
-  .phase-header h3 {
-    font-size: 1.05rem;
-  }
-
-  /* Files Table - Better spacing */
-  .files-table th,
-  .files-table td {
-    padding: 1rem;
-  }
-
-  .files-table th {
-    font-size: 0.85rem;
-  }
-
-  .files-table td {
-    font-size: 0.95rem;
-  }
-
-  /* Meetings - Two column grid */
-  .meetings-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .meeting-item {
-    padding: 1.25rem;
-  }
-
-  /* Admin Panel - Wider sidebar */
-  .client-sidebar {
-    width: 360px;
-  }
-
-  .sidebar-header {
-    padding: 1.25rem;
-  }
-
-  .client-item {
-    padding: 1.25rem;
-  }
-
-  .admin-main {
-    padding: 2.5rem;
-  }
-
-  .client-detail {
-    max-width: 1000px;
-  }
-
-  .admin-section {
-    padding: 1.75rem;
-  }
-
-  .admin-section h2 {
-    font-size: 1.2rem;
-  }
-
-  /* Phases Admin - Two column grid */
-  .phases-admin {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-
-  /* Meetings Admin - Better layout */
-  .meetings-admin-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  /* Modal - Larger on desktop */
-  .modal {
-    max-width: 520px;
-    padding: 2rem;
-  }
-
-  .upload-area {
-    padding: 2.5rem;
-  }
-
-  /* Phase Templates - Desktop enhancements */
-  .admin-templates-view {
-    max-width: 1100px;
-  }
-
-  .templates-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .template-phase-card {
-    height: fit-content;
-  }
-}
-
 /* ============ LARGE DESKTOP (1200px+) ============ */
 @media (min-width: 1200px) {
   /* Dashboard - Extra wide content */
@@ -2541,738 +2642,3 @@ body {
   }
 }
 
-/* ============ DESKTOP RESPONSIVE (1024px+) ============ */
-@media (min-width: 1024px) {
-  /* Login Page - Split screen layout */
-  .login-page {
-    padding: 2rem;
-  }
-
-  .login-branding {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .login-container {
-    flex: 0 0 480px;
-    max-width: none;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 4rem 3rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .shield-icon {
-    width: 100px;
-    height: 100px;
-  }
-
-  .shield-icon svg {
-    width: 56px;
-    height: 56px;
-  }
-
-  .login-logo h1 {
-    font-size: 2.5rem;
-  }
-
-  .tagline {
-    font-size: 1.15rem;
-  }
-
-  .login-btn {
-    padding: 1.25rem 1.75rem;
-  }
-
-  .login-btn .btn-text strong {
-    font-size: 1.2rem;
-  }
-
-  .login-btn .btn-text small {
-    font-size: 0.9rem;
-  }
-
-  /* Dashboard - Full width with padding */
-  .dashboard-header {
-    padding: 1.25rem 3rem;
-  }
-
-  .logo-small {
-    font-size: 1.35rem;
-    gap: 1rem;
-  }
-
-  .logo-small svg {
-    width: 36px;
-    height: 36px;
-  }
-
-  .dashboard-content {
-    padding: 2.5rem 3rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 2.5rem;
-  }
-
-  .card {
-    padding: 2rem;
-  }
-
-  .card h2 {
-    font-size: 1.35rem;
-  }
-
-  /* Progress Bar - Larger on desktop */
-  .progress-bar.large {
-    height: 20px;
-  }
-
-  .progress-text {
-    font-size: 1.1rem;
-  }
-
-  /* Phases - Two column grid on desktop */
-  .phases-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .phase-item {
-    padding: 1.5rem;
-  }
-
-  .phase-header h3 {
-    font-size: 1.1rem;
-  }
-
-  /* Files Table - Better spacing */
-  .files-table th,
-  .files-table td {
-    padding: 1rem 1.25rem;
-  }
-
-  .files-table th {
-    font-size: 0.85rem;
-  }
-
-  .files-table td {
-    font-size: 0.95rem;
-  }
-
-  /* Meetings - Two column grid */
-  .meetings-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-
-  .meeting-item {
-    padding: 1.5rem;
-  }
-
-  /* Admin Panel - Full width layout */
-  .admin-main {
-    padding: 2.5rem 3rem;
-    min-height: calc(100vh - 69px);
-  }
-
-  .client-sidebar {
-    width: 320px;
-    max-height: none;
-  }
-
-  .no-selection {
-    min-height: 500px;
-  }
-
-  .admin-section {
-    padding: 2rem;
-  }
-
-  .admin-section h2 {
-    font-size: 1.2rem;
-  }
-
-  /* Phases Admin - Two column grid */
-  .phases-admin {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-
-  /* Meetings Admin - Two columns */
-  .meetings-admin-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  /* Modal - Larger on desktop */
-  .modal {
-    max-width: 520px;
-    padding: 2rem;
-  }
-
-  .upload-area {
-    padding: 2.5rem;
-  }
-}
-
-/* ============ LARGE DESKTOP (1200px+) ============ */
-@media (min-width: 1200px) {
-  /* Login - Larger branding area */
-  .login-wrapper {
-    min-height: 700px;
-  }
-
-  .login-branding {
-    padding: 5rem;
-  }
-
-  .login-branding h2 {
-    font-size: 3.5rem;
-  }
-
-  .login-branding p {
-    font-size: 1.35rem;
-  }
-
-  .login-container {
-    flex: 0 0 520px;
-    padding: 4rem;
-  }
-
-  /* Dashboard - More breathing room */
-  .dashboard-header {
-    padding: 1.5rem 4rem;
-  }
-
-  .dashboard-content {
-    padding: 3rem 4rem;
-  }
-
-  .welcome-section {
-    margin-bottom: 2.5rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 2.75rem;
-    margin-bottom: 1rem;
-  }
-
-  .badge.large {
-    padding: 0.75rem 1.5rem;
-    font-size: 1.05rem;
-  }
-
-  .card {
-    padding: 2.25rem;
-    margin-bottom: 2rem;
-    border-radius: 12px;
-  }
-
-  /* Phases - Three columns */
-  .phases-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .phase-item {
-    padding: 1.75rem;
-  }
-
-  .steps-list li {
-    font-size: 0.95rem;
-    padding: 0.25rem 0;
-  }
-
-  /* Files Table - Enhanced */
-  .files-table {
-    font-size: 0.95rem;
-  }
-
-  .files-table th,
-  .files-table td {
-    padding: 1.15rem 1.5rem;
-  }
-
-  /* Meetings - Three columns */
-  .meetings-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .meeting-item {
-    padding: 1.75rem;
-  }
-
-  .meeting-info strong {
-    font-size: 1.05rem;
-  }
-
-  /* Final Record - Better layout */
-  .record-status {
-    margin: 1.5rem 0;
-  }
-
-  .request-record-btn,
-  .download-record-btn {
-    padding: 0.85rem 2rem;
-    font-size: 1.05rem;
-  }
-
-  /* Admin Panel - Wider sidebar */
-  .client-sidebar {
-    width: 380px;
-    max-height: none;
-  }
-
-  .admin-main {
-    min-height: calc(100vh - 73px);
-  }
-
-  .no-selection {
-    min-height: 550px;
-  }
-
-  .sidebar-header {
-    padding: 1.5rem;
-  }
-
-  .sidebar-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .search-input {
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-  }
-
-  .client-item {
-    padding: 1.35rem 1.5rem;
-  }
-
-  .client-info strong {
-    font-size: 1.05rem;
-  }
-
-  .admin-main {
-    padding: 3rem 4rem;
-  }
-
-  .detail-header h1 {
-    font-size: 2.25rem;
-  }
-
-  .admin-section {
-    padding: 2.25rem;
-    margin-bottom: 2rem;
-    border-radius: 12px;
-  }
-
-  /* Phases Admin - Three columns */
-  .phases-admin {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .phase-admin-item {
-    padding: 1.5rem;
-  }
-
-  .phase-admin-item h3 {
-    font-size: 1.05rem;
-    margin-bottom: 1rem;
-  }
-
-  .step-checkbox {
-    font-size: 0.95rem;
-    padding: 0.2rem 0;
-  }
-
-  /* Meetings Admin - Three columns */
-  .meetings-admin-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  .meeting-admin-item {
-    padding: 1.5rem;
-  }
-
-  /* Modal - Larger */
-  .modal {
-    max-width: 580px;
-    padding: 2.5rem;
-  }
-
-  .modal h3 {
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .upload-area {
-    padding: 3rem;
-  }
-
-  .upload-icon {
-    font-size: 3rem;
-  }
-}
-
-/* ============ EXTRA LARGE DESKTOP (1440px+) ============ */
-@media (min-width: 1440px) {
-  /* Login - Premium layout */
-  .login-wrapper {
-    max-width: 1600px;
-    min-height: 750px;
-  }
-
-  .login-branding {
-    padding: 6rem;
-  }
-
-  .login-branding h2 {
-    font-size: 4rem;
-  }
-
-  .login-branding p {
-    font-size: 1.5rem;
-    max-width: 500px;
-  }
-
-  .login-features li {
-    font-size: 1.2rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .login-container {
-    flex: 0 0 560px;
-    padding: 5rem;
-  }
-
-  .shield-icon {
-    width: 120px;
-    height: 120px;
-  }
-
-  .shield-icon svg {
-    width: 64px;
-    height: 64px;
-  }
-
-  .login-logo h1 {
-    font-size: 2.75rem;
-  }
-
-  .login-btn {
-    padding: 1.35rem 2rem;
-  }
-
-  .login-btn .btn-icon {
-    width: 56px;
-    height: 56px;
-  }
-
-  .login-btn .btn-icon svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  /* Dashboard - Full width utilization */
-  .dashboard-header {
-    padding: 1.75rem 5rem;
-  }
-
-  .logo-small {
-    font-size: 1.5rem;
-  }
-
-  .logo-small svg {
-    width: 40px;
-    height: 40px;
-  }
-
-  .dashboard-content {
-    padding: 3.5rem 5rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 3rem;
-  }
-
-  .product-badge {
-    gap: 1.5rem;
-  }
-
-  .modules-list {
-    font-size: 1rem;
-  }
-
-  .card {
-    padding: 2.5rem;
-  }
-
-  .card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Progress */
-  .progress-bar.large {
-    height: 24px;
-  }
-
-  .progress-text {
-    font-size: 1.2rem;
-  }
-
-  /* Phases - Four columns on very wide screens */
-  .phases-list {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem;
-  }
-
-  .phase-item {
-    padding: 2rem;
-  }
-
-  /* Files Table */
-  .files-table {
-    font-size: 1rem;
-  }
-
-  .files-table th,
-  .files-table td {
-    padding: 1.25rem 1.75rem;
-  }
-
-  /* Meetings - Four columns */
-  .meetings-list {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem;
-  }
-
-  .meeting-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 2rem;
-  }
-
-  .meeting-item .join-btn {
-    width: 100%;
-    text-align: center;
-  }
-
-  /* Admin Panel - Spacious sidebar */
-  .client-sidebar {
-    width: 420px;
-    max-height: none;
-  }
-
-  .client-item {
-    padding: 1.5rem;
-  }
-
-  .admin-main {
-    padding: 3.5rem 5rem;
-    min-height: calc(100vh - 81px);
-  }
-
-  .no-selection {
-    min-height: 600px;
-  }
-
-  .detail-header {
-    margin-bottom: 2.5rem;
-    padding-bottom: 2rem;
-  }
-
-  .detail-header h1 {
-    font-size: 2.5rem;
-  }
-
-  .admin-section {
-    padding: 2.5rem;
-  }
-
-  .admin-section h2 {
-    font-size: 1.35rem;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Phases Admin - Four columns on wide screens */
-  .phases-admin {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem;
-  }
-
-  .phase-admin-item {
-    padding: 1.75rem;
-  }
-
-  /* Meetings Admin - Four columns */
-  .meetings-admin-list {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.75rem;
-  }
-
-  .meeting-admin-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.75rem;
-  }
-
-  .meeting-admin-item > div:first-child {
-    width: 100%;
-  }
-
-  .meeting-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  /* No Selection - Larger */
-  .no-selection {
-    height: 500px;
-  }
-
-  .no-selection-icon {
-    width: 120px;
-    height: 120px;
-  }
-
-  .no-selection-icon svg {
-    width: 60px;
-    height: 60px;
-  }
-
-  .no-selection h2 {
-    font-size: 1.75rem;
-  }
-
-  .no-selection p {
-    font-size: 1.1rem;
-  }
-}
-
-/* ============ ULTRA WIDE DESKTOP (1920px+) ============ */
-@media (min-width: 1920px) {
-  /* Login - Maximum impact */
-  .login-wrapper {
-    max-width: 1800px;
-    min-height: 800px;
-  }
-
-  .login-branding {
-    padding: 8rem;
-  }
-
-  .login-branding h2 {
-    font-size: 4.5rem;
-  }
-
-  .login-container {
-    flex: 0 0 600px;
-    padding: 6rem;
-  }
-
-  /* Dashboard - Ultra wide utilization */
-  .dashboard-header {
-    padding: 2rem 6rem;
-  }
-
-  .logo-small {
-    font-size: 1.6rem;
-  }
-
-  .logo-small svg {
-    width: 44px;
-    height: 44px;
-  }
-
-  .dashboard-content {
-    padding: 4rem 6rem;
-  }
-
-  .welcome-section h1 {
-    font-size: 3.25rem;
-  }
-
-  .badge.large {
-    padding: 0.85rem 2rem;
-    font-size: 1.15rem;
-  }
-
-  .card {
-    padding: 3rem;
-  }
-
-  .card h2 {
-    font-size: 1.65rem;
-  }
-
-  /* Phases - Five columns */
-  .phases-list {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem;
-  }
-
-  /* Meetings - Four columns with more space */
-  .meetings-list {
-    gap: 2rem;
-  }
-
-  /* Admin Panel */
-  .client-sidebar {
-    width: 480px;
-    max-height: none;
-  }
-
-  .sidebar-header {
-    padding: 1.75rem;
-  }
-
-  .sidebar-header h2 {
-    font-size: 1.4rem;
-  }
-
-  .admin-main {
-    padding: 4rem 6rem;
-    min-height: calc(100vh - 88px);
-  }
-
-  .no-selection {
-    min-height: 650px;
-  }
-
-  .detail-header h1 {
-    font-size: 2.75rem;
-  }
-
-  .admin-section {
-    padding: 3rem;
-  }
-
-  .admin-section h2 {
-    font-size: 1.45rem;
-  }
-
-  /* Phases Admin - Five columns */
-  .phases-admin {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 2rem;
-  }
-
-  /* Meetings Admin */
-  .meetings-admin-list {
-    gap: 2rem;
-  }
-}
