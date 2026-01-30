@@ -1,10 +1,61 @@
 import { useState, useCallback, useMemo, memo } from "react";
-import type { Client, PhaseTemplate, Phase, ProductType } from "../types";
+import type { Client, PhaseTemplate, Phase, ProductType, Step } from "../types";
 import { AVAILABLE_MODULES } from "../data/mockData";
 import { getFileIcon, getStatusColor, generateId, getInitials } from "../utils/helpers";
 import { PhaseTemplateManager } from "./PhaseTemplateManager";
-import { ShieldIcon, ChevronRightIcon, UserFilledIcon } from "./ui/Icons";
+import { ShieldIcon, ChevronRightIcon, UserFilledIcon, DocumentIcon } from "./ui/Icons";
 import { UploadModal } from "./ui/Modal";
+
+// Step Description Edit Modal
+const StepEditModal = memo(function StepEditModal({
+  step,
+  phaseName,
+  onSave,
+  onClose
+}: {
+  step: Step;
+  phaseName: string;
+  onSave: (description: string) => void;
+  onClose: () => void;
+}) {
+  const [description, setDescription] = useState(step.description || "");
+
+  const handleSave = () => {
+    onSave(description);
+    onClose();
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal step-edit-modal" onClick={e => e.stopPropagation()}>
+        <h3>Edit Step Details</h3>
+        <div className="step-edit-info">
+          <span className="step-edit-phase">{phaseName}</span>
+          <span className="step-edit-name">{step.name}</span>
+        </div>
+        
+        <div className="form-group">
+          <label>Description</label>
+          <p className="form-hint">
+            This description is specific to this client. Changes won't affect other clients or the template.
+          </p>
+          <textarea
+            className="step-description-input"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder="Enter details about this step that will help the client understand what's happening..."
+            rows={6}
+          />
+        </div>
+
+        <div className="modal-actions">
+          <button className="cancel-btn" onClick={onClose}>Cancel</button>
+          <button className="submit-btn" onClick={handleSave}>Save Changes</button>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 interface AdminPanelProps {
   clients: Client[];
@@ -89,6 +140,9 @@ export const AdminPanel = memo(function AdminPanel({
   const [newClientProduct, setNewClientProduct] = useState<ProductType>("ZEUS");
   const [newClientModules, setNewClientModules] = useState<string[]>([]);
 
+  // Step edit modal state
+  const [editingStep, setEditingStep] = useState<{ step: Step; phaseId: string; phaseName: string } | null>(null);
+
   // Memoized selected client lookup
   const selectedClient = useMemo(() => 
     clients.find(c => c.id === selectedClientId) ?? null,
@@ -117,10 +171,12 @@ export const AdminPanel = memo(function AdminPanel({
     return relevantTemplates.map(template => ({
       id: template.id,
       name: template.name,
+      description: template.description, // Copy phase description from template
       modules: template.modules,
       steps: template.steps.map(step => ({
         id: step.id,
         name: step.name,
+        description: step.description, // Copy step description from template
         completed: false,
       })),
     }));
@@ -193,6 +249,23 @@ export const AdminPanel = memo(function AdminPanel({
     const newProgress = Math.round((completedSteps / totalSteps) * 100);
 
     onUpdateClient(selectedClient.id, { phases: updatedPhases, progress: newProgress });
+  }, [selectedClient, onUpdateClient]);
+
+  const handleUpdateStepDescription = useCallback((phaseId: string, stepId: string, description: string) => {
+    if (!selectedClient) return;
+
+    const updatedPhases = selectedClient.phases.map(phase => {
+      if (phase.id !== phaseId) return phase;
+      return {
+        ...phase,
+        steps: phase.steps.map(step => {
+          if (step.id !== stepId) return step;
+          return { ...step, description };
+        }),
+      };
+    });
+
+    onUpdateClient(selectedClient.id, { phases: updatedPhases });
   }, [selectedClient, onUpdateClient]);
 
   const handleSelectClient = useCallback((clientId: string) => {
@@ -364,21 +437,41 @@ export const AdminPanel = memo(function AdminPanel({
               {/* Phase/Step Management - Full width */}
               <section className="admin-section">
                 <h2>Phase & Step Management</h2>
+                <p className="section-subtitle">Check off steps as they're completed. Click the edit icon to customize step details for this client.</p>
                 <div className="phases-admin">
                   {selectedClient.phases.map(phase => (
                     <div key={phase.id} className="phase-admin-item">
                       <h3>{phase.name}</h3>
+                      {phase.description && (
+                        <p className="phase-admin-description">{phase.description}</p>
+                      )}
                       <ul className="steps-admin-list">
                         {phase.steps.map(step => (
-                          <li key={step.id}>
+                          <li key={step.id} className="step-admin-item">
                             <label className="step-checkbox">
                               <input
                                 type="checkbox"
                                 checked={step.completed}
                                 onChange={() => handleStepToggle(phase.id, step.id)}
                               />
-                              <span className={step.completed ? "completed" : ""}>{step.name}</span>
+                              <div className="step-checkbox-content">
+                                <span className={step.completed ? "completed" : ""}>{step.name}</span>
+                                {step.description && (
+                                  <span className="step-description-preview">
+                                    {step.description.length > 60 
+                                      ? step.description.slice(0, 60) + '...' 
+                                      : step.description}
+                                  </span>
+                                )}
+                              </div>
                             </label>
+                            <button 
+                              className="action-btn icon-btn small"
+                              onClick={() => setEditingStep({ step, phaseId: phase.id, phaseName: phase.name })}
+                              title="Edit step details"
+                            >
+                              <DocumentIcon />
+                            </button>
                           </li>
                         ))}
                       </ul>
@@ -638,6 +731,16 @@ export const AdminPanel = memo(function AdminPanel({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Step Edit Modal */}
+      {editingStep && (
+        <StepEditModal
+          step={editingStep.step}
+          phaseName={editingStep.phaseName}
+          onSave={(description) => handleUpdateStepDescription(editingStep.phaseId, editingStep.step.id, description)}
+          onClose={() => setEditingStep(null)}
+        />
       )}
     </div>
   );
