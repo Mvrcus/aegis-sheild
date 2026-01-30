@@ -481,23 +481,15 @@
   }
 }
 
-/* Large desktop */
-@media (min-width: 85rem) and (min-height: 700px) {
-  .login-container {
-    max-width: 100rem;
-  }
-
+/* Large desktop - keep width constrained, don't expand based on viewport */
+@media (min-width: 85rem) {
   .login-card {
     flex-basis: clamp(28rem, 40%, 36rem);
   }
 }
 
-/* Extra large */
-@media (min-width: 105rem) and (min-height: 800px) {
-  .login-container {
-    max-width: 120rem;
-  }
-
+/* Extra large - keep width constrained */
+@media (min-width: 105rem) {
   .login-card {
     flex-basis: clamp(30rem, 38%, 40rem);
   }
