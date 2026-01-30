@@ -1,83 +1,74 @@
-/* Aegis Shield Client Portal - Styles */
+/*
+ * ============================================
+ * AEGIS SHIELD - APP STYLES
+ * ============================================
+ * 
+ * This file contains component-specific styles.
+ * Global design tokens are defined in index.css
+ * ============================================
+ */
 
-/* ============ CSS VARIABLES ============ */
+/* ============ LEGACY VARIABLE ALIASES ============ */
+/* Maps old variable names to new design system tokens */
+/* TODO: Gradually migrate components to use new names directly */
 :root {
-  /* Brand Colors */
-  --primary-color: #1e40af;
-  --primary-dark: #1e3a8a;
-  --primary-light: #3b82f6;
-  --secondary-color: #7c3aed;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --zeus-color: #7c3aed;
-  --hestia-color: #059669;
+  /* Colors - map to global tokens */
+  --primary-color: var(--color-brand-primary);
+  --primary-dark: var(--color-brand-primary-dark);
+  --primary-light: var(--color-brand-primary-light);
+  --secondary-color: var(--color-brand-secondary);
+  --success-color: var(--color-success);
+  --warning-color: var(--color-warning);
+  --danger-color: var(--color-danger);
+  --zeus-color: var(--color-zeus);
+  --hestia-color: var(--color-hestia);
 
-  /* Gray Scale */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-400: #9ca3af;
-  --gray-500: #6b7280;
-  --gray-600: #4b5563;
-  --gray-700: #374151;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
+  /* Gray scale - map to global tokens */
+  --gray-50: var(--color-gray-50);
+  --gray-100: var(--color-gray-100);
+  --gray-200: var(--color-gray-200);
+  --gray-300: var(--color-gray-300);
+  --gray-400: var(--color-gray-400);
+  --gray-500: var(--color-gray-500);
+  --gray-600: var(--color-gray-600);
+  --gray-700: var(--color-gray-700);
+  --gray-800: var(--color-gray-800);
+  --gray-900: var(--color-gray-900);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  /* Shadows - use global values directly (same names) */
+  /* Global tokens already define: --shadow-xs, --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl */
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  /* Border Radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-base: 0.3s ease;
-  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Border radius - map to global tokens */
+  --border-radius: var(--radius-md);
 }
 
-/* Login Page Design Tokens */
+/* ============ LOGIN PAGE TOKENS ============ */
+/* Scoped overrides for dark theme login */
 .login-page {
-  /* Colors */
-  --login-bg-start: #0f172a;
-  --login-bg-mid: #1e293b;
-  --login-bg-end: #334155;
-  --login-accent-blue: #60a5fa;
+  /* Dark theme colors */
+  --login-bg-start: var(--color-dark-bg);
+  --login-bg-mid: var(--color-dark-surface);
+  --login-bg-end: var(--color-dark-elevated);
+  --login-accent-blue: var(--color-brand-accent);
   --login-accent-purple: #a78bfa;
   --login-accent-cyan: #06b6d4;
-  --login-orb-blue: #3b82f6;
-  --login-orb-purple: #8b5cf6;
+  --login-orb-blue: var(--color-brand-primary-light);
+  --login-orb-purple: var(--color-brand-secondary);
 
-  /* Glass Effect */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.05);
-  --glass-bg-hover: rgba(255, 255, 255, 0.15);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-border-subtle: rgba(255, 255, 255, 0.1);
-  --glass-border-hover: rgba(255, 255, 255, 0.3);
-  --glass-blur: blur(10px);
-  --glass-blur-strong: blur(20px);
-
-  /* Text Colors */
+  /* Dark theme text */
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --text-muted: rgba(255, 255, 255, 0.6);
   --text-subtle: rgba(255, 255, 255, 0.4);
 
-  /* Spacing Scale (responsive) */
+  /* Responsive spacing for login (viewport-aware) */
   --space-xs: clamp(0.5rem, 1vw, 0.75rem);
   --space-sm: clamp(0.875rem, 1.5vw, 1.25rem);
   --space-md: clamp(1.25rem, 2.5vw, 1.75rem);
   --space-lg: clamp(1.5rem, 3vw, 2.5rem);
 
-  /* Font Sizes (responsive) */
+  /* Responsive typography for login */
   --text-xs: clamp(0.75rem, 1.5vw, 0.875rem);
   --text-sm: clamp(0.8125rem, 1.5vw, 0.9375rem);
   --text-base: clamp(0.875rem, 1.8vw, 1rem);
@@ -85,33 +76,13 @@
   --text-xl: clamp(1.25rem, 3vw, 1.75rem);
   --text-2xl: clamp(1.5rem, 4vw, 2.25rem);
 
-  /* Icon Sizes */
+  /* Icon sizes */
   --icon-sm: clamp(2.25rem, 4vw, 3rem);
   --icon-md: clamp(2.5rem, 5vw, 3.25rem);
 
-  /* Border Radius (responsive) */
+  /* Responsive radius */
   --radius-card: clamp(0.75rem, 1.5vw, 1rem);
   --radius-panel: clamp(1rem, 2vw, 1.25rem);
-}
-
-/* ============ RESET & BASE ============ */
-* {
-  box-sizing: border-box;
-}
-
-#root {
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: var(--gray-100);
-  display: block;
 }
 
 /* ============ LOGIN PAGE ============ */

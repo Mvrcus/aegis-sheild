@@ -1,0 +1,205 @@
+# Aegis Shield - Design System & Development Rules
+
+## Application Views
+
+The application consists of the following main views:
+
+1. **LoginPage** (`LoginPage` component)
+   - Glassmorphism design with animated background
+   - Client and Admin login options
+   - Feature highlights grid
+
+2. **ClientDashboard** (`ClientDashboard` component)
+   - Welcome section with product badge
+   - Project progress tracking
+   - Phase checklist with steps
+   - File uploads (client files)
+   - Deliverables from Aegis Shield (admin files)
+   - Scheduled meetings
+   - Final Project Record request/download
+
+3. **AdminPanel** (`AdminPanel` component)
+   - **Clients View** (default):
+     - Client list sidebar with search
+     - Client detail panel with:
+       - Progress management
+       - Phase/step management
+       - File management (client & admin uploads)
+       - Meeting links management
+       - Final record status management
+   - **Phase Templates View** (`PhaseTemplateManager` component):
+     - Create/edit/delete phase templates
+     - Manage steps within phases
+     - Assign modules to phases (HESTIA)
+
+---
+
+## Design Token System
+
+### CRITICAL RULE: Always Use Design Tokens
+
+**NEVER hardcode colors, spacing, typography, shadows, or other design values directly in CSS.**
+
+All design values MUST come from the design token system defined in `src/react-app/index.css`. If you need a value that doesn't exist in the token system, you MUST add it to the token system first, then use it.
+
+### Token Architecture
+
+The design system is organized in `src/react-app/index.css` with the following structure:
+
+#### Global Tokens (`:root` in `index.css`)
+These are the foundation tokens used throughout the entire application:
+
+- **Colors**: `--color-{semantic}-{variant}` (e.g., `--color-brand-primary`, `--color-gray-500`)
+- **Spacing**: `--space-{size}` (e.g., `--space-4`, `--space-8`)
+- **Typography**: `--text-{size}` (e.g., `--text-lg`, `--text-2xl`)
+- **Shadows**: `--shadow-{size}` (e.g., `--shadow-md`, `--shadow-lg`)
+- **Border Radius**: `--radius-{size}` (e.g., `--radius-md`, `--radius-lg`)
+- **Transitions**: `--transition-{speed}` (e.g., `--transition-base`, `--transition-smooth`)
+- **Z-Index**: `--z-{layer}` (e.g., `--z-modal`, `--z-tooltip`)
+- **Glassmorphism**: `--glass-{property}` (e.g., `--glass-bg`, `--glass-blur`)
+
+#### Component-Specific Tokens (`App.css`)
+Scoped tokens for specific components or themes:
+
+- **Login Page**: Dark theme tokens scoped to `.login-page`
+- **Legacy Aliases**: Backward compatibility mappings in `:root`
+
+### Adding New Tokens
+
+If you need a design value that doesn't exist:
+
+1. **Check if a similar token exists** - Look for existing tokens that could be reused
+2. **Determine if it's global or scoped**:
+   - **Global**: Add to `:root` in `src/react-app/index.css`
+   - **Component-specific**: Add to the component's scoped selector in `App.css`
+3. **Follow naming conventions**:
+   - Colors: `--color-{semantic}-{variant}`
+   - Spacing: `--space-{number}` (based on 4px increments)
+   - Typography: `--text-{size}` (xs, sm, base, lg, xl, 2xl, 3xl, 4xl)
+   - Shadows: `--shadow-{size}` (xs, sm, md, lg, xl)
+   - Radius: `--radius-{size}` (sm, md, lg, xl, 2xl, full)
+4. **Document the token** - Add a comment explaining its purpose
+5. **Use the token** - Reference it in your CSS using `var(--token-name)`
+
+### Token Usage Examples
+
+```css
+/* ✅ CORRECT - Using tokens */
+.card {
+  background: white;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--color-gray-900);
+  font-size: var(--text-base);
+}
+
+/* ❌ WRONG - Hardcoded values */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #111827;
+  font-size: 16px;
+}
+```
+
+### Color Token Guidelines
+
+- **Brand colors**: Use `--color-brand-*` for primary brand elements
+- **Semantic colors**: Use `--color-success`, `--color-warning`, `--color-danger`, `--color-info` for status indicators
+- **Neutral colors**: Use `--color-gray-{shade}` for text, borders, backgrounds
+- **Dark theme**: Use `--color-dark-*` tokens for dark backgrounds (login page)
+
+### Spacing Guidelines
+
+- Use `--space-{number}` tokens for all padding, margin, and gap values
+- The spacing scale is based on 4px increments (0.25rem)
+- Common values: `--space-1` (4px), `--space-2` (8px), `--space-4` (16px), `--space-8` (32px)
+
+### Typography Guidelines
+
+- Use `--text-{size}` tokens for all font sizes
+- Use `--font-weight-{weight}` for font weights (normal, medium, semibold, bold)
+- Use `--line-height-{variant}` for line heights (tight, base, relaxed)
+
+### Responsive Design
+
+- Use `clamp()` for fluid typography and spacing when needed
+- Use viewport units (`vh`, `vw`, `dvh`) for full-viewport layouts
+- Use `rem` units for scalable spacing (based on 16px root font size)
+- Media queries should use `rem` units: `@media (min-width: 48rem)` not `@media (min-width: 768px)`
+
+---
+
+## CSS Architecture
+
+### File Organization
+
+1. **`src/react-app/index.css`**
+   - Global design tokens (`:root`)
+   - CSS reset and base styles
+   - Utility classes
+   - **DO NOT** add component-specific styles here
+
+2. **`src/react-app/App.css`**
+   - Component-specific styles
+   - Scoped design tokens (e.g., `.login-page`)
+   - Legacy variable aliases (for backward compatibility)
+   - Responsive breakpoints
+
+### CSS Best Practices
+
+1. **Use semantic class names**: `.dashboard-header` not `.header-blue`
+2. **Follow BEM-like naming**: `.card`, `.card-header`, `.card-body`
+3. **Group related styles**: Keep component styles together
+4. **Use CSS custom properties**: Always prefer tokens over hardcoded values
+5. **Mobile-first**: Write base styles for mobile, then use `@media (min-width: ...)` for larger screens
+6. **Avoid deep nesting**: Keep selector depth to 3 levels maximum
+7. **Use flexbox/grid**: Prefer modern layout methods over floats or positioning
+
+---
+
+## Dependencies
+
+The project uses minimal dependencies for optimal performance:
+
+- **React 19** - UI framework
+- **React DOM 19** - Rendering
+- **Hono** - Backend API framework
+- **No CSS frameworks** - Pure CSS for maximum performance
+
+**DO NOT** add CSS frameworks (Tailwind, Bootstrap, etc.) or UI component libraries without explicit approval. The design system is built with vanilla CSS for optimal bundle size and performance.
+
+---
+
+## Code Quality Standards
+
+1. **TypeScript**: Use TypeScript for all components and logic
+2. **Component structure**: Functional components with hooks
+3. **Props typing**: Always type component props explicitly
+4. **Error handling**: Handle edge cases and empty states
+5. **Accessibility**: Use semantic HTML, ARIA labels where needed, keyboard navigation
+6. **Performance**: Avoid unnecessary re-renders, use React best practices
+
+---
+
+## When Adding New Features
+
+1. **Check existing tokens** - Can you reuse existing design tokens?
+2. **Add tokens if needed** - Follow the token naming conventions
+3. **Use tokens consistently** - Reference tokens, don't hardcode values
+4. **Update this file** - Document new patterns or conventions
+5. **Test responsiveness** - Ensure mobile and desktop layouts work
+6. **Maintain consistency** - Follow existing patterns and component structure
+
+---
+
+## Questions?
+
+If you're unsure about:
+- Which token to use → Check `src/react-app/index.css` for available tokens
+- Whether to add a new token → Ask: "Will this value be reused elsewhere?" If yes, add it.
+- How to structure CSS → Follow the patterns in `App.css` for similar components
+- Responsive breakpoints → Use `48rem` (768px), `64rem` (1024px), `80rem` (1280px) as standard breakpoints
